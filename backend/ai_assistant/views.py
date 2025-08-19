@@ -5,7 +5,7 @@ from langchain_openai import ChatOpenAI
 
 def analyze_spending(request):
     # Load mock data
-    with open(r"D:\Mumbai Hack\FinRightAI\backend\data\mock_data.json", "r") as f:
+    with open(r"C:\Users\Dell\OneDrive\Desktop\GIthub\FinRight-AI\backend\data\mock_data.json", "r") as f:
         users = json.load(f)
 
     user = users[0]  # just pick first user for demo
