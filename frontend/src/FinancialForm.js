@@ -24,7 +24,7 @@ function FinancialForm({ setApiResponse }) {
     event.preventDefault(); // Prevents the default form submission behavior
 
     if (!file || !question) {
-      setError('Please select a CSV file and enter a question.');
+      setError('Please select a CSV or PDF file and enter a question.');
       return;
     }
 
@@ -32,7 +32,7 @@ function FinancialForm({ setApiResponse }) {
     setError(null);
 
     const formData = new FormData();
-    formData.append('csv_file', file);
+    formData.append('file', file);
     formData.append('question', question);
 
     try {
@@ -65,7 +65,7 @@ function FinancialForm({ setApiResponse }) {
             id="csv-file"
             className="hidden"
             onChange={handleFileChange}
-            accept=".csv"
+            accept=".csv, .pdf"
           />
           <label htmlFor="csv-file" className="flex flex-col items-center cursor-pointer">
             <svg
@@ -83,7 +83,7 @@ function FinancialForm({ setApiResponse }) {
               />
             </svg>
             <span className="mt-2 text-center text-sm font-medium text-gray-700">
-              {file ? file.name : 'Click to upload your CSV file'}
+              {file ? file.name : 'Click to upload your CSV or PDf file'}
             </span>
             <span className="text-xs text-gray-500 mt-1">
               (e.g., bank statements)
