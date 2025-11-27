@@ -90,6 +90,7 @@ DATABASES = {
 }
 
 
+
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
@@ -137,3 +138,7 @@ load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 AUTH_USER_MODEL = "users.User"
+
+MONGODB_URI = os.getenv("MONGO_URI")
+MONGODB_DB_NAME = os.getenv("MONGO_DBNAME", "om")
+MONGODB_COLLECTION_NAME = "expenses"  # you can rename if you want

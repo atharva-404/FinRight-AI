@@ -15,10 +15,9 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path,include
-from ai_assistant.views import analyze_spending
 
 urlpatterns = [
-    path("api/ai/coach/", analyze_spending),
+    path("api/ai/", include("ai_assistant.urls")),
     path('api/users/', include('users.urls')),
     path('api/transactions/', include('transactions.urls')),
     path("api/goals/", include("savings_goals.urls")),
