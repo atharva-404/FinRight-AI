@@ -1,11 +1,12 @@
 # ai_assistant/models.py
 from django.db import models
 from django.conf import settings
+from users.models import User
 
 
 class Document(models.Model):
     """Represents an uploaded document and its extracted text."""
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     file_name = models.CharField(max_length=512)
     content = models.TextField(blank=True)  # extracted text
     created_at = models.DateTimeField(auto_now_add=True)

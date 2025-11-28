@@ -19,11 +19,17 @@ import pytesseract
 
 # ---------- OpenAI + Mongo clients ----------
 
-openai_client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-mongo_client = MongoClient(settings.MONGODB_URI)
-mongo_db = mongo_client[settings.MONGODB_DB_NAME]
-mongo_collection = mongo_db[settings.MONGODB_COLLECTION_NAME]
+def get_Model():
+    return OpenAI(api_key=settings.OPENAI_API_KEY)
+
+
+def get_mongo_collection():
+    mongo_client = MongoClient(settings.MONGODB_URI)
+    mongo_db =mongo_client[settings.MONGODB_DB_NAME]
+    mongo_collection = mongo_db[settings.MONGODB_COLLECTION_NAME]
+    return mongo_collection
+        
 
 
 
@@ -113,7 +119,7 @@ Schema:
 }
     """.strip()
 
-    response = openai_client.chat.completions.create(
+    response = get_Model().chat.completions.create(
         model="gpt-4o-mini",
         messages=[
             {"role": "system", "content": system_instruction},
@@ -149,7 +155,7 @@ def save_expense_document_to_mongo(user_id, uploaded_file, raw_text, structured_
         "extracted_data": structured_data,  # key-value document
         "created_at": datetime.utcnow(),
     }
-    result = mongo_collection.insert_one(document)
+    result = get_mongo_collection().insert_one(document)
     return str(result.inserted_id)
 
 
@@ -165,11 +171,11 @@ def get_expense_document_by_id(doc_id: str):
     except Exception:
         # if it's not a valid ObjectId, try to find by string _id
         try:
-            return mongo_collection.find_one({"_id": doc_id})
+            return get_mongo_collection().find_one({"_id": doc_id})
         except Exception:
             return None
 
-    return mongo_collection.find_one({"_id": oid})
+    return get_mongo_collection().find_one({"_id": oid})
 
 
 def extracted_data_to_csv_bytes(extracted_data: dict) -> bytes:
