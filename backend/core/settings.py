@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'transactions',
     'savings_goals',
     'gamification',
+    'sockets', 
+    'channels',
 
 ]
 
@@ -76,7 +78,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'core.wsgi.application'
+ASGI_APPLICATION = "core.asgi.application"
 
 
 # Database
@@ -142,3 +144,15 @@ AUTH_USER_MODEL = "users.User"
 MONGODB_URI = os.getenv("MONGO_URI")
 MONGODB_DB_NAME = os.getenv("MONGO_DBNAME", "om")
 MONGODB_COLLECTION_NAME = "expenses"  # you can rename if you want
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    }
+}

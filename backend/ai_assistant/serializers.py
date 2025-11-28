@@ -1,46 +1,30 @@
 # ai_assistant/serializers.py
 from rest_framework import serializers
-from .models import Document, Conversation, Message
+from .models import ChatMessage, ChatSession, Document
 
 
-class ExpenseFileUploadSerializer(serializers.Serializer):
+class DocumentFileUploadSerializer(serializers.Serializer):
     """
-    Serializer for uploading bank statements/receipts/invoices.
-    Supports: PDF, images (JPG, PNG, etc.), CSV, TXT
+    Serializer for uploading financial documents.
+    Supports: PDF, images, CSV, TXT
     """
-    file = serializers.FileField(
-        help_text="Upload a file (PDF, image, CSV, or TXT)"
-    )
+    file = serializers.FileField(help_text="Upload a file (PDF, Image, CSV, or TXT)")
 
     def validate_file(self, file):
-        """
-        Validate file size and format.
-        """
-        # Max 10MB
+        # Max 10 MB
         max_size = 10 * 1024 * 1024
         if file.size > max_size:
             raise serializers.ValidationError(
                 f"File size must not exceed 10MB. Got {file.size / (1024*1024):.2f}MB"
             )
 
-        # Allowed extensions
-        allowed_extensions = {
-            '.pdf', '.txt', '.csv',
-            '.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff'
-        }
-        
-        file_name_lower = file.name.lower()
-        file_ext = None
-        for ext in allowed_extensions:
-            if file_name_lower.endswith(ext):
-                file_ext = ext
-                break
+        allowed_ext = {'.pdf', '.txt', '.csv', '.jpg', '.jpeg', '.png'}
+        file_name = file.name.lower()
 
-        if not file_ext:
+        if not any(file_name.endswith(ext) for ext in allowed_ext):
             raise serializers.ValidationError(
-                f"File type not supported. Allowed: {', '.join(allowed_extensions)}"
+                f"Invalid file type. Allowed: {', '.join(allowed_ext)}"
             )
-
         return file
 
 
@@ -56,13 +40,13 @@ class DocumentListSerializer(serializers.ModelSerializer):
         fields = ["id", "file_name", "created_at"]
 
 
-class ConversationSerializer(serializers.ModelSerializer):
+class ChatSessionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Conversation
-        fields = ["id", "user", "document", "created_at", "last_updated"]
+        model = ChatSession
+        fields = ["id", "mongo_id", "created_at"]
 
 
-class MessageSerializer(serializers.ModelSerializer):
+class ChatMessageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Message
-        fields = ["id", "conversation", "user", "text", "created_at"]
+        model = ChatMessage
+        fields = ["id", "session", "sender", "text", "created_at"]
