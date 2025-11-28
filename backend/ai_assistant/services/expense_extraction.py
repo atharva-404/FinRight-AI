@@ -26,6 +26,7 @@ mongo_db = mongo_client[settings.MONGODB_DB_NAME]
 mongo_collection = mongo_db[settings.MONGODB_COLLECTION_NAME]
 
 
+
 # ---------- File -> text extraction ----------
 
 def _extract_text_from_pdf(django_file):
