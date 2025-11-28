@@ -1,50 +1,109 @@
-import { useState, useEffect } from 'react';
-import FinancialForm from './FinancialForm'; // Corrected path assumption
-// The App.css import is removed as Tailwind CSS is used for styling.
+// src/App.js
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Signup from "./pages/signup";
+import LoginPage from "./pages/LoginPage";
+import FinancialForm from "./FinancialForm";
 
-function App() {
-  const [advice, setAdvice] = useState('');
+// ---- these imports are placeholders — replace with your actual paths ----
+import HomeOverview from "./pages/HomeOverview";
+import InsightsPage from "./pages/InsightsPage";
+import HomeDashboardFrontend from "./HomeDashboardFrontend";
+import UploadPage from "./pages/UploadPage";
+import UploadedFilesPage from "./pages/UploadedFilesPage";
+import ProfilePage from "./pages/ProfilePage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import FloatingThemeToggle from "./components/FloatingThemeToggle";
+import Splash from "./pages/Splash";
+import { ThemeProvider } from "./ThemeContext";
+import { AuthProvider } from "./AuthContext";
+import { PrivateRoute } from "./components/PrivateRoute";
+// ------------------------------------------------------------------------
+
+/**
+ * AppContent: the actual application content + routing.
+ * Note: renamed from `App` to `AppContent` to avoid duplicate identifier.
+ */
+function AppContent() {
+  const [advice, setAdvice] = useState("");
   const [apiResponse, setApiResponse] = useState(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [showSplash, setShowSplash] = useState(false); // keep a state for splash if you use it
 
+  // Typing effect: run whenever apiResponse changes
   useEffect(() => {
-    if (apiResponse) {
-      setIsTyping(true);
-      setAdvice(''); // Clear the previous advice
-      const fullText = apiResponse;
-      let i = 0;
-      
-      const typingInterval = setInterval(() => {
-        if (i < fullText.length) {
-          setAdvice((prevAdvice) => prevAdvice + fullText.charAt(i));
-          i++;
-        } else {
-          clearInterval(typingInterval);
-          setIsTyping(false);
-        }
-      }, 30); // Adjust typing speed here (in milliseconds)
-      
-      return () => clearInterval(typingInterval);
-    }
-  }, [apiResponse]);
+    if (!apiResponse) return;
+
+    setIsTyping(true);
+    setAdvice(""); // Clear previous advice
+    const fullText = apiResponse;
+    let i = 0;
+
+    const typingInterval = setInterval(() => {
+      if (i < fullText.length) {
+        setAdvice((prevAdvice) => prevAdvice + fullText.charAt(i));
+        i++;
+      } else {
+        clearInterval(typingInterval);
+        setIsTyping(false);
+      }
+    }, 30);
+
+    // cleanup
+    return () => clearInterval(typingInterval);
+  }, [apiResponse]); // <- important: include apiResponse in deps
 
   return (
-    <div className="bg-gray-100 min-h-screen p-4 flex flex-col items-center">
-      {/* The main form component is now rendered here */}
-      <FinancialForm setApiResponse={setApiResponse} />
+    <>
+      <Routes>
+        <Route path="/" element={<HomeOverview />} />
+        <Route path="/home" element={<HomeOverview />} />
+        <Route path="/insights" element={<PrivateRoute element={<InsightsPage />} />} />
+        <Route path="/dashboard" element={<PrivateRoute element={<HomeDashboardFrontend />} />} />
+        <Route path="/upload" element={<PrivateRoute element={<UploadPage />} />} />
+        <Route path="/files" element={<PrivateRoute element={<UploadedFilesPage />} />} />
+        <Route path="/profile" element={<PrivateRoute element={<ProfilePage />} />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      </Routes>
 
-      {/* Container for the AI's response */}
-      {advice && (
-        <div className="mt-8 p-6 bg-white rounded-lg shadow-2xl max-w-lg w-full transform transition-all duration-300">
-          <p className="font-bold text-gray-800 text-lg mb-2">AI Insights:</p>
-          <p className="text-gray-700 font-inter leading-relaxed whitespace-pre-wrap">
-            {advice}
-            {isTyping && <span className="animate-pulse">|</span>}
-          </p>
+      {/* Floating Theme Toggle - visible on all pages */}
+      <FloatingThemeToggle />
+
+      {/* Splash overlay - shown above everything when showSplash true */}
+      {showSplash && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 9999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            background:
+              "linear-gradient(180deg, rgba(248,250,252,0.95), rgba(238,242,255,0.95))",
+          }}
+        >
+          <Splash />
         </div>
       )}
-    </div>
+    </>
   );
 }
 
-export default App;
+/**
+ * Root App component: wraps AuthProvider, ThemeProvider and Router around AppContent.
+ * Export default remains `App`.
+ */
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
+  );
+}

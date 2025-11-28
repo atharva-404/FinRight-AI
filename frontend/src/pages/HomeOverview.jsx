@@ -1,0 +1,378 @@
+// src/pages/HomeOverview.jsx
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "../ThemeContext";
+import "../styles/global.css";
+
+export default function HomeOverview() {
+  const navigate = useNavigate();
+  const { isDark } = useTheme();
+
+  const lightBg = "linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%)";
+
+  return (
+    <div style={{ background: lightBg, minHeight: "100vh", padding: 0 }}>
+      {/* Header/Navigation Bar */}
+      <header style={{
+        background: "var(--bg-primary)",
+        borderBottom: "1px solid var(--border-color)",
+        padding: "16px 32px",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        position: "sticky",
+        top: 0,
+        zIndex: 10,
+        boxShadow: "var(--shadow-sm)"
+      }}>
+        <div style={{
+          fontSize: 24,
+          fontWeight: 800,
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          backgroundClip: "text",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          color: "#667eea"
+        }}>
+          Finright
+        </div>
+        <button 
+          onClick={() => navigate("/dashboard")} 
+          style={{
+            padding: "10px 20px",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "#fff",
+            border: "none",
+            borderRadius: 8,
+            cursor: "pointer",
+            fontWeight: 600,
+            fontSize: 14,
+            transition: "all 0.3s"
+          }}
+          onMouseOver={(e) => e.target.style.transform = "translateY(-2px)"}
+          onMouseOut={(e) => e.target.style.transform = "translateY(0)"}
+        >
+          Get Started →
+        </button>
+      </header>
+
+      <div className="container" style={{ maxWidth: 1200, marginTop: 0 }}>
+        {/* Hero Section */}
+        <div style={{
+          paddingTop: 60,
+          paddingBottom: 60,
+          textAlign: "center"
+        }}>
+          <div style={{
+            display: "inline-block",
+            padding: "8px 16px",
+            background: "rgba(102, 126, 234, 0.1)",
+            borderRadius: 20,
+            marginBottom: 20,
+            fontSize: 13,
+            fontWeight: 600,
+            color: "#667eea"
+          }}>
+            ✨ Welcome to Finright
+          </div>
+
+          <h1 style={{
+            fontSize: 52,
+            fontWeight: 800,
+            lineHeight: 1.2,
+            marginBottom: 20,
+            color: "var(--text-primary)"
+          }}>
+            Master Your Money
+            <br />
+            <span style={{
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              backgroundClip: "text",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent"
+            }}>
+              With AI Intelligence
+            </span>
+          </h1>
+
+          <p style={{
+            fontSize: 18,
+            color: "var(--text-secondary)",
+            maxWidth: 600,
+            margin: "0 auto 32px",
+            lineHeight: 1.6
+          }}>
+            Upload your bank statements, ask natural questions, and get actionable financial insights powered by advanced AI technology.
+          </p>
+
+          <div style={{
+            display: "flex",
+            gap: 16,
+            justifyContent: "center",
+            marginBottom: 60
+          }}>
+            <button 
+              onClick={() => navigate("/upload")}
+              style={{
+                padding: "14px 32px",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                color: "#fff",
+                border: "none",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: 16,
+                transition: "all 0.3s",
+                boxShadow: "0 8px 24px rgba(102, 126, 234, 0.3)"
+              }}
+              onMouseOver={(e) => e.target.style.transform = "translateY(-4px)"}
+              onMouseOut={(e) => e.target.style.transform = "translateY(0)"}
+            >
+              📁 Upload File
+            </button>
+            <button 
+              onClick={() => navigate("/insights")}
+              style={{
+                padding: "14px 32px",
+                background: "var(--bg-primary)",
+                color: "#667eea",
+                border: "2px solid #667eea",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: 16,
+                transition: "all 0.3s"
+              }}
+              onMouseOver={(e) => {
+                e.target.style.background = "rgba(102, 126, 234, 0.08)";
+                e.target.style.transform = "translateY(-4px)";
+              }}
+              onMouseOut={(e) => {
+                e.target.style.background = "var(--bg-primary)";
+                e.target.style.transform = "translateY(0)";
+              }}
+            >
+              💬 Ask AI
+            </button>
+          </div>
+
+          {/* Hero Stats */}
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 20,
+            maxWidth: 600,
+            margin: "0 auto"
+          }}>
+            <div style={{ padding: 16 }}>
+              <div style={{ fontSize: 28, fontWeight: 800, color: "#667eea" }}>100%</div>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>Secure & Private</div>
+            </div>
+            <div style={{ padding: 16 }}>
+              <div style={{ fontSize: 28, fontWeight: 800, color: "#764ba2" }}>AI-Powered</div>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>Smart Analysis</div>
+            </div>
+            <div style={{ padding: 16 }}>
+              <div style={{ fontSize: 28, fontWeight: 800, color: "#667eea" }}>Instant</div>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 4 }}>Real-time Results</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Features Section */}
+        <div style={{
+          paddingTop: 40,
+          paddingBottom: 60
+        }}>
+          <h2 style={{
+            fontSize: 36,
+            fontWeight: 800,
+            textAlign: "center",
+            marginBottom: 12,
+            color: "var(--text-primary)"
+          }}>
+            How Finright Works
+          </h2>
+          <p style={{
+            fontSize: 16,
+            color: "var(--text-secondary)",
+            textAlign: "center",
+            marginBottom: 40
+          }}>
+            Three simple steps to financial clarity
+          </p>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: 24,
+            marginTop: 32
+          }}>
+            {[
+              {
+                num: "01",
+                icon: "📤",
+                title: "Upload",
+                desc: "Securely upload your CSV or PDF bank statements in seconds."
+              },
+              {
+                num: "02",
+                icon: "🧠",
+                title: "Analyze",
+                desc: "Our AI extracts spending patterns and financial trends automatically."
+              },
+              {
+                num: "03",
+                icon: "💡",
+                title: "Get Insights",
+                desc: "Receive personalized recommendations to save more and spend smarter."
+              }
+            ].map((item, idx) => (
+              <div
+                key={idx}
+                style={{
+                  background: "var(--bg-primary)",
+                  borderRadius: 12,
+                  padding: 32,
+                  boxShadow: "var(--shadow-md)",
+                  border: "1px solid var(--border-color)",
+                  transition: "all 0.3s",
+                  cursor: "pointer"
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = "translateY(-8px)";
+                  e.currentTarget.style.boxShadow = "0 12px 32px rgba(102, 126, 234, 0.15)";
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "var(--shadow-md)";
+                }}
+              >
+                <div style={{
+                  fontSize: 12,
+                  fontWeight: 800,
+                  color: "#667eea",
+                  marginBottom: 12
+                }}>
+                  {item.num}
+                </div>
+                <div style={{ fontSize: 32, marginBottom: 12 }}>{item.icon}</div>
+                <h3 style={{
+                  fontSize: 20,
+                  fontWeight: 700,
+                  color: "var(--text-primary)",
+                  marginBottom: 8
+                }}>
+                  {item.title}
+                </h3>
+                <p style={{
+                  fontSize: 14,
+                  color: "var(--text-secondary)",
+                  lineHeight: 1.6
+                }}>
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Benefits Section */}
+        <div style={{
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          borderRadius: 16,
+          padding: 48,
+          color: "#fff",
+          marginBottom: 60,
+          textAlign: "center"
+        }}>
+          <h2 style={{
+            fontSize: 32,
+            fontWeight: 800,
+            marginBottom: 16
+          }}>
+            Why Choose Finright?
+          </h2>
+          <p style={{
+            fontSize: 16,
+            lineHeight: 1.6,
+            maxWidth: 600,
+            margin: "0 auto 32px",
+            opacity: 0.95
+          }}>
+            We combine cutting-edge AI technology with financial expertise to help you make smarter money decisions.
+          </p>
+
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(2, 1fr)",
+            gap: 24,
+            marginTop: 24
+          }}>
+            {[
+              "🔒 Bank-grade encryption",
+              "⚡ Lightning-fast processing",
+              "🎯 Personalized advice",
+              "📱 Works on any device"
+            ].map((benefit, idx) => (
+              <div key={idx} style={{ fontSize: 14, fontWeight: 600 }}>
+                {benefit}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CTA Section */}
+        <div style={{
+          textAlign: "center",
+          paddingBottom: 60
+        }}>
+          <h2 style={{
+            fontSize: 32,
+            fontWeight: 800,
+            marginBottom: 16,
+            color: "var(--text-primary)"
+          }}>
+            Ready to Transform Your Finances?
+          </h2>
+          <button 
+            onClick={() => navigate("/upload")}
+            style={{
+              padding: "16px 40px",
+              background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontWeight: 700,
+              fontSize: 16,
+              transition: "all 0.3s",
+              boxShadow: "0 8px 24px rgba(102, 126, 234, 0.3)"
+            }}
+            onMouseOver={(e) => e.target.style.transform = "translateY(-4px)"}
+            onMouseOut={(e) => e.target.style.transform = "translateY(0)"}
+          >
+            Start Uploading Now
+          </button>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer style={{
+        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        color: "#fff",
+        padding: "32px",
+        textAlign: "center",
+        fontSize: 13,
+        marginTop: 40
+      }}>
+        <div style={{ marginBottom: 12 }}>
+          © 2024 Finright. Your intelligent financial assistant.
+        </div>
+        <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.9)" }}>
+          Upload files securely, analyze spending patterns, and get AI-powered insights.
+        </div>
+      </footer>
+    </div>
+  );
+}
