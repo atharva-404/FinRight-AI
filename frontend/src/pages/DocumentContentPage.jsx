@@ -2,12 +2,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTheme } from "../ThemeContext";
-import { apiClient } from "../services/authService"; // ✅ axios instance with token + refresh
+import { useAuth } from "../AuthContext";
+import UserMenu from "../components/UserMenu";
+import { apiClient } from "../services/authService"; // axios instance with token + refresh
 import "../styles/global.css";
 
 export default function DocumentContentPage() {
   const navigate = useNavigate();
   const { isDark } = useTheme();
+  const { isAuthenticated } = useAuth();
   const { documentId } = useParams();
 
   const [doc, setDoc] = useState(null);
@@ -62,11 +65,11 @@ export default function DocumentContentPage() {
         setDoc(res.data);
 
         // If content is a string (likely CSV), parse it
-        if (typeof res.data === 'string') {
+        if (typeof res.data === "string") {
           parseCSV(res.data);
-        } else if (res.data.content && typeof res.data.content === 'string') {
+        } else if (res.data.content && typeof res.data.content === "string") {
           parseCSV(res.data.content);
-        } else if (typeof res.data === 'object') {
+        } else if (typeof res.data === "object") {
           // Handle object format
           setColumns(Object.keys(res.data));
           setTableData([res.data]);
@@ -101,12 +104,12 @@ export default function DocumentContentPage() {
   // Parse CSV content into table data
   const parseCSV = (content) => {
     try {
-      const lines = content.trim().split('\n');
+      const lines = content.trim().split("\n");
       if (lines.length === 0) return null;
 
       // Parse header
       const headerLine = lines[0];
-      const parsedColumns = headerLine.split(',').map(col => col.trim());
+      const parsedColumns = headerLine.split(",").map((col) => col.trim());
 
       // Parse rows
       const rows = [];
@@ -114,10 +117,10 @@ export default function DocumentContentPage() {
         const line = lines[i].trim();
         if (!line) continue;
 
-        const values = line.split(',').map(val => val.trim());
+        const values = line.split(",").map((val) => val.trim());
         const row = {};
         parsedColumns.forEach((col, idx) => {
-          row[col] = values[idx] || '';
+          row[col] = values[idx] || "";
         });
         rows.push(row);
       }
@@ -125,13 +128,20 @@ export default function DocumentContentPage() {
       setColumns(parsedColumns);
       setTableData(rows);
     } catch (err) {
-      console.error('CSV parsing error:', err);
-      setError('Failed to parse document as CSV');
+      console.error("CSV parsing error:", err);
+      setError("Failed to parse document as CSV");
     }
   };
 
-return (
-  <div style={{ display: "flex", height: "100vh" }}>
+  return (
+    <div
+      style={{
+        display: "flex",
+        height: "100vh",
+        width: "100vw",
+        overflow: "hidden",
+      }}
+    >
       {/* ---- STATIC SIDEBAR ---- */}
       <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
         <button
@@ -270,11 +280,16 @@ return (
       </aside>
 
       {/* ---- MAIN CONTENT AREA ---- */}
-            <main
+      <main
         ref={mainRef}
         className={`main-with-sidebar ${sidebarOpen ? "" : "sidebar-closed"}`}
-        style={{ overflowY: "auto" }}
-        >
+        style={{
+          flex: 1,
+          height: "100vh",
+          overflowY: "auto",
+          paddingBottom: "40px",
+        }}
+      >
         <div className="container">
           {/* Top row: back + login */}
           <div
@@ -295,22 +310,26 @@ return (
               </button>
             </div>
 
-            <button
-              onClick={() => navigate("/login")}
-              className="login-button"
-              title="Login to your account"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <button
+                onClick={() => navigate("/login")}
+                className="login-button"
+                title="Login to your account"
               >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              Login
-            </button>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Login
+              </button>
+            )}
           </div>
 
           {/* Card with document content */}
@@ -327,12 +346,20 @@ return (
           >
             {/* Header */}
             <div style={{ marginBottom: 32 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 8 }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  marginBottom: 8,
+                }}
+              >
                 <div
                   style={{
                     width: 48,
                     height: 48,
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                     borderRadius: 12,
                     display: "flex",
                     alignItems: "center",
@@ -344,13 +371,37 @@ return (
                   📄
                 </div>
                 <div>
-                  <h2 style={{ margin: 0, color: "var(--text-primary)", fontSize: 28, fontWeight: 800 }}>
+                  <h2
+                    style={{
+                      margin: 0,
+                      color: "var(--text-primary)",
+                      fontSize: 28,
+                      fontWeight: 800,
+                    }}
+                  >
                     Document Details
                   </h2>
                 </div>
               </div>
-              <p style={{ color: "var(--text-secondary)", margin: 0, fontSize: 14 }}>
-                Document ID: <code style={{ background: "var(--bg-tertiary)", padding: "2px 8px", borderRadius: 4, color: "#667eea", fontWeight: 600 }}>{documentId}</code>
+              <p
+                style={{
+                  color: "var(--text-secondary)",
+                  margin: 0,
+                  fontSize: 14,
+                }}
+              >
+                Document ID:{" "}
+                <code
+                  style={{
+                    background: "var(--bg-tertiary)",
+                    padding: "2px 8px",
+                    borderRadius: 4,
+                    color: "#667eea",
+                    fontWeight: 600,
+                  }}
+                >
+                  {documentId}
+                </code>
               </p>
             </div>
 
@@ -386,8 +437,12 @@ return (
                 }}
               >
                 <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
-                <div style={{ fontSize: 16, fontWeight: 500 }}>Loading document content...</div>
-                <div style={{ fontSize: 13, marginTop: 8 }}>This may take a few moments</div>
+                <div style={{ fontSize: 16, fontWeight: 500 }}>
+                  Loading document content...
+                </div>
+                <div style={{ fontSize: 13, marginTop: 8 }}>
+                  This may take a few moments
+                </div>
               </div>
             )}
 
@@ -403,7 +458,8 @@ return (
                   <thead>
                     <tr
                       style={{
-                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                        background:
+                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                         color: "white",
                       }}
                     >
@@ -438,7 +494,8 @@ return (
                           transition: "background-color 0.2s ease",
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = "rgba(102, 126, 234, 0.08)";
+                          e.currentTarget.style.background =
+                            "rgba(102, 126, 234, 0.08)";
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background =
@@ -461,7 +518,7 @@ return (
                             }}
                             title={row[col]}
                           >
-                            {row[col] || '-'}
+                            {row[col] || "-"}
                           </td>
                         ))}
                       </tr>
@@ -474,35 +531,79 @@ return (
                   style={{
                     marginTop: 32,
                     padding: 24,
-                    background: "linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)",
+                    background:
+                      "linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)",
                     borderRadius: 12,
                     border: "1px solid rgba(102, 126, 234, 0.2)",
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                    gridTemplateColumns:
+                      "repeat(auto-fit, minmax(200px, 1fr))",
                     gap: 16,
                   }}
                 >
                   <div>
-                    <div style={{ fontSize: 12, color: "var(--text-tertiary)", textTransform: "uppercase", fontWeight: 700, marginBottom: 4 }}>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "var(--text-tertiary)",
+                        textTransform: "uppercase",
+                        fontWeight: 700,
+                        marginBottom: 4,
+                      }}
+                    >
                       Total Rows
                     </div>
-                    <div style={{ fontSize: 28, fontWeight: 800, color: "#667eea" }}>
+                    <div
+                      style={{
+                        fontSize: 28,
+                        fontWeight: 800,
+                        color: "#667eea",
+                      }}
+                    >
                       {tableData.length}
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, color: "var(--text-tertiary)", textTransform: "uppercase", fontWeight: 700, marginBottom: 4 }}>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "var(--text-tertiary)",
+                        textTransform: "uppercase",
+                        fontWeight: 700,
+                        marginBottom: 4,
+                      }}
+                    >
                       Total Columns
                     </div>
-                    <div style={{ fontSize: 28, fontWeight: 800, color: "#764ba2" }}>
+                    <div
+                      style={{
+                        fontSize: 28,
+                        fontWeight: 800,
+                        color: "#764ba2",
+                      }}
+                    >
                       {columns.length}
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 12, color: "var(--text-tertiary)", textTransform: "uppercase", fontWeight: 700, marginBottom: 4 }}>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "var(--text-tertiary)",
+                        textTransform: "uppercase",
+                        fontWeight: 700,
+                        marginBottom: 4,
+                      }}
+                    >
                       Status
                     </div>
-                    <div style={{ fontSize: 14, color: "#22c55e", fontWeight: 600 }}>
+                    <div
+                      style={{
+                        fontSize: 14,
+                        color: "#22c55e",
+                        fontWeight: 600,
+                      }}
+                    >
                       ✓ Loaded
                     </div>
                   </div>
@@ -522,7 +623,8 @@ return (
                   <thead>
                     <tr
                       style={{
-                        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                        background:
+                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                         color: "white",
                       }}
                     >
@@ -566,7 +668,8 @@ return (
                           transition: "background-color 0.2s ease",
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = "rgba(102, 126, 234, 0.08)";
+                          e.currentTarget.style.background =
+                            "rgba(102, 126, 234, 0.08)";
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background =
@@ -593,7 +696,8 @@ return (
                             verticalAlign: "top",
                           }}
                         >
-                          {typeof value === "string" && value.length > 200 ? (
+                          {typeof value === "string" &&
+                          value.length > 200 ? (
                             <div
                               style={{
                                 maxHeight: 300,
@@ -601,16 +705,19 @@ return (
                                 padding: 12,
                                 background: "var(--bg-tertiary)",
                                 borderRadius: 8,
-                                border: "1px solid var(--border-color)",
+                                border:
+                                  "1px solid var(--border-color)",
                                 lineHeight: 1.6,
                                 fontSize: 13,
-                                fontFamily: '"Monaco", "Courier New", monospace',
+                                fontFamily:
+                                  '"Monaco", "Courier New", monospace',
                                 color: "var(--text-primary)",
                               }}
                             >
                               {value}
                             </div>
-                          ) : typeof value === "object" && value !== null ? (
+                          ) : typeof value === "object" &&
+                            value !== null ? (
                             <div
                               style={{
                                 maxHeight: 300,
@@ -618,10 +725,12 @@ return (
                                 padding: 12,
                                 background: "var(--bg-tertiary)",
                                 borderRadius: 8,
-                                border: "1px solid var(--border-color)",
+                                border:
+                                  "1px solid var(--border-color)",
                                 lineHeight: 1.6,
                                 fontSize: 12,
-                                fontFamily: '"Monaco", "Courier New", monospace',
+                                fontFamily:
+                                  '"Monaco", "Courier New", monospace',
                                 color: "var(--text-primary)",
                                 whiteSpace: "pre-wrap",
                               }}
@@ -649,10 +758,22 @@ return (
                 }}
               >
                 <div style={{ fontSize: 48, marginBottom: 16 }}>📭</div>
-                <div style={{ fontSize: 16, fontWeight: 500, color: "var(--text-primary)", marginBottom: 8 }}>
+                <div
+                  style={{
+                    fontSize: 16,
+                    fontWeight: 500,
+                    color: "var(--text-primary)",
+                    marginBottom: 8,
+                  }}
+                >
                   No data available
                 </div>
-                <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: "var(--text-secondary)",
+                  }}
+                >
                   This document doesn't contain any extractable information yet.
                 </div>
               </div>

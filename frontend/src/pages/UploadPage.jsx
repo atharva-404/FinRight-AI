@@ -2,11 +2,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../ThemeContext";
+import { useAuth } from "../AuthContext";
+import UserMenu from "../components/UserMenu";
 import { documentService } from "../services/documentService";
 
 export default function UploadPage() {
   const navigate = useNavigate();
   const { isDark } = useTheme();
+  const { isAuthenticated } = useAuth();
 
   // ---- Sidebar state (same pattern as dashboard) ----
   const [tab, setTab] = useState("upload"); // Upload active on this page
@@ -308,22 +311,26 @@ export default function UploadPage() {
               </button>
             </div>
 
-            <button
-              onClick={() => navigate("/login")}
-              className="login-button"
-              title="Login to your account"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <button
+                onClick={() => navigate("/login")}
+                className="login-button"
+                title="Login to your account"
               >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              Login
-            </button>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Login
+              </button>
+            )}
           </div>
 
           {/* Upload card (your original content, just wrapped nicely) */}
@@ -646,7 +653,7 @@ export default function UploadPage() {
           </div>
 
           <footer className="page-footer">
-            © Finright — Demo frontend only
+            © Finright 
           </footer>
         </div>
       </main>

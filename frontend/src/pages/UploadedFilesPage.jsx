@@ -2,6 +2,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../ThemeContext";
+import { useAuth } from "../AuthContext";
+import UserMenu from "../components/UserMenu";
 import { documentService } from "../services/documentService";
 import "../styles/global.css";
 
@@ -16,6 +18,7 @@ import "../styles/global.css";
 export default function UploadedFilesPage() {
   const navigate = useNavigate();
   const { isDark } = useTheme();
+  const { isAuthenticated } = useAuth();
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -250,22 +253,26 @@ export default function UploadedFilesPage() {
               </button>
             </div>
 
-            <button
-              onClick={() => navigate("/login")}
-              className="login-button"
-              title="Login to your account"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <button
+                onClick={() => navigate("/login")}
+                className="login-button"
+                title="Login to your account"
               >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              Login
-            </button>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Login
+              </button>
+            )}
           </div>
 
           {/* Card with table */}

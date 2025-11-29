@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useTheme } from "../ThemeContext";
+import { useAuth } from "../AuthContext";
+import UserMenu from "../components/UserMenu";
 import { aiService } from "../services/aiService";
 import "../styles/global.css";
 import "../styles/chat.css";
@@ -10,6 +12,7 @@ import "../styles/chat.css";
 export default function InsightsPage() {
   const navigate = useNavigate();
   const { isDark } = useTheme();
+  const { isAuthenticated } = useAuth();
 
   // Chat state
   const [chatHistory, setChatHistory] = useState([]);
@@ -451,22 +454,26 @@ export default function InsightsPage() {
               </button>
             </div>
 
-            <button
-              onClick={() => navigate("/login")}
-              className="login-button"
-              title="Login to your account"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <button
+                onClick={() => navigate("/login")}
+                className="login-button"
+                title="Login to your account"
               >
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              Login
-            </button>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Login
+              </button>
+            )}
           </div>
 
           {/* Chat UI card */}
