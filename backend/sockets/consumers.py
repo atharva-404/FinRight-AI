@@ -3,20 +3,25 @@ import asyncio
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from asgiref.sync import sync_to_async
 from core.settings import OPENAI_API_KEY
-from ai_assistant.services.expense_extraction import get_expense_document_by_id
-from ai_assistant.services.expense_chat import chat_with_expense_data
+from ai_assistant.services.document_chat import chat_with_document
 from ai_assistant.models import ChatSession, ChatMessage
 
 
-class ExpenseChatConsumer(AsyncJsonWebsocketConsumer):
+class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
     """
-    WebSocket endpoint for AI chat over expenses, with:
-    - Room per mongo_id (multiple clients see same answer)
-    - Typing indicator
-    - Streaming-style chunks
+    WebSocket endpoint for AI chat with SQL documents, with:
+    - Support for specific document_id or all documents as context
+    - Typing indicator and token streaming
+    - Short, professional 2-line responses
     - History saved in DB
 
-    URL: ws://<host>/ws/ai/chat/<mongo_id>/
+    URL: ws://<host>/ws/ai/chat/
+    
+    Expected payload:
+    {
+      "question": "How much did I spend?",
+      "document_id": 123  (optional, if None uses all documents)
+    }
     """
 
     async def connect(self):
@@ -26,8 +31,7 @@ class ExpenseChatConsumer(AsyncJsonWebsocketConsumer):
         #     await self.close()
         #     return
 
-        self.mongo_id = self.scope["url_route"]["kwargs"]["mongo_id"]
-        self.room_group_name = f"expense_chat_{self.mongo_id}"
+        self.room_group_name = f"document_chat_{user.id if user and not user.is_anonymous else 'anon'}"
         self.user = user  # Store user for later (may be AnonymousUser)
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
@@ -40,64 +44,67 @@ class ExpenseChatConsumer(AsyncJsonWebsocketConsumer):
         """
         Expected payload:
         {
-          "question": "How much did I spend on food last month?"
+          "question": "How much did I spend?",
+          "document_id": 123  (optional)
         }
         """
         user = self.user  # Use stored user from connect()
         question = content.get("question")
+        document_id = content.get("document_id")  # None = use all documents
+        
         if not question:
             await self.send_json({"type": "error", "error": "question is required"})
             return
 
-        # Skip session/message storage for anonymous users (testing only)
-        if user and not user.is_anonymous:
-            # 1) Ensure ChatSession exists (per user + mongo_id)
-            session = await sync_to_async(self._get_or_create_session)(user, self.mongo_id)
+        # Verify user is authenticated
+        if not user or user.is_anonymous:
+            await self.send_json({"type": "error", "error": "Authentication required"})
+            return
 
-            # 2) Save user message
-            await sync_to_async(ChatMessage.objects.create)(
-                session=session, sender="user", text=question
-            )
-        else:
-            session = None
+        # 1) Ensure ChatSession exists
+        session = await sync_to_async(self._get_or_create_session)(user, document_id)
+
+        # 2) Save user message
+        await sync_to_async(ChatMessage.objects.create)(
+            session=session, sender="user", text=question
+        )
 
         # 3) Notify room that AI is typing
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 "type": "chat.typing",
-                "mongo_id": self.mongo_id,
+                "document_id": document_id,
                 "sender": "ai",
                 "status": "start",
             },
         )
 
-        # 4) Get Mongo doc & LLM answer (blocking → thread)
-        doc = await sync_to_async(get_expense_document_by_id)(self.mongo_id)
-        if not doc:
+        # 4) Get LLM answer with document context (blocking → thread)
+        try:
+            answer = await sync_to_async(chat_with_document)(
+                question, user.id, document_id
+            )
+        except Exception as e:
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
                     "type": "chat.message",
                     "payload": {
                         "type": "error",
-                        "error": "Document not found",
-                        "mongo_id": self.mongo_id,
+                        "error": f"Failed to generate response: {str(e)}",
+                        "document_id": document_id,
                     },
                 },
             )
             return
 
-        answer = await sync_to_async(chat_with_expense_data)(question, doc)
+        # 5) Save AI message
+        await sync_to_async(ChatMessage.objects.create)(
+            session=session, sender="ai", text=answer
+        )
 
-        # 5) Save AI message (only if authenticated)
-        if session:
-            await sync_to_async(ChatMessage.objects.create)(
-                session=session, sender="ai", text=answer
-            )
-
-        # 6) Tokenized stream: send one token at a time so clients can render streaming output
-        # Simple whitespace tokenization is used here for portability (no external tokenizer required).
+        # 6) Tokenized stream: send one token at a time
         tokens = answer.split()
         for t in tokens:
             await self.channel_layer.group_send(
@@ -106,12 +113,12 @@ class ExpenseChatConsumer(AsyncJsonWebsocketConsumer):
                     "type": "chat.message",
                     "payload": {
                         "type": "token",
-                        "mongo_id": self.mongo_id,
+                        "document_id": document_id,
                         "text": t,
                     },
                 },
             )
-            # yield control to event loop to allow responsive streaming
+            # yield control to event loop for responsive streaming
             await asyncio.sleep(0)
 
         # 7) Typing stopped + done event
@@ -119,7 +126,7 @@ class ExpenseChatConsumer(AsyncJsonWebsocketConsumer):
             self.room_group_name,
             {
                 "type": "chat.typing",
-                "mongo_id": self.mongo_id,
+                "document_id": document_id,
                 "sender": "ai",
                 "status": "stop",
             },
@@ -131,7 +138,7 @@ class ExpenseChatConsumer(AsyncJsonWebsocketConsumer):
                 "type": "chat.message",
                 "payload": {
                     "type": "done",
-                    "mongo_id": self.mongo_id,
+                    "document_id": document_id,
                     "complete": answer,
                 },
             },
@@ -147,7 +154,7 @@ class ExpenseChatConsumer(AsyncJsonWebsocketConsumer):
         await self.send_json(
             {
                 "type": "typing",
-                "mongo_id": event.get("mongo_id"),
+                "document_id": event.get("document_id"),
                 "sender": event.get("sender"),
                 "status": event.get("status"),  # "start" | "stop"
             }
@@ -155,9 +162,10 @@ class ExpenseChatConsumer(AsyncJsonWebsocketConsumer):
 
     # === helper ===
 
-    def _get_or_create_session(self, user, mongo_id):
+    def _get_or_create_session(self, user, document_id):
+        # Create session per user + document_id combination
         session, _ = ChatSession.objects.get_or_create(
             user=user,
-            mongo_id=mongo_id,
+            mongo_id=f"doc_{document_id}" if document_id else "all_docs",
         )
         return session

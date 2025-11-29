@@ -4,3 +4,4 @@
 /frontend/node_modules
 *.md
 /frontend/node_modules
+*.pyc
