@@ -26,11 +26,18 @@ export const useWebSocketChat = () => {
   const [currentStreamingText, setCurrentStreamingText] = useState('');
   const [error, setError] = useState(null);
 
-  // Build WebSocket URL dynamically
+  // Build WebSocket URL dynamically with auth token
   const getWebSocketUrl = useCallback(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    return `${protocol}//localhost:8000/ws/ai/chat/`;
+    // Look for 'access_token' (JWT), not 'token' (DRF Token)
+    const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+    console.log('[WS] Token from storage:', token ? `${token.substring(0, 20)}...` : 'NOT FOUND');
+    console.log('[WS] localStorage.access_token:', localStorage.getItem('access_token'));
+    console.log('[WS] sessionStorage.access_token:', sessionStorage.getItem('access_token'));
+    const urlParams = token ? `?token=${token}` : '';
+    const url = `${protocol}//localhost:8000/ws/ai/chat/${urlParams}`;
+    console.log('[WS] Full WebSocket URL:', url);
+    return url;
   }, []);
 
   // Connect to WebSocket

@@ -5,6 +5,7 @@ from asgiref.sync import sync_to_async
 from core.settings import OPENAI_API_KEY
 from ai_assistant.services.document_chat import chat_with_document
 from ai_assistant.models import ChatSession, ChatMessage
+from django.contrib.auth.models import AnonymousUser
 
 
 class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
@@ -23,22 +24,36 @@ class DocumentChatConsumer(AsyncJsonWebsocketConsumer):
       "document_id": 123  (optional, if None uses all documents)
     }
     """
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.room_group_name = None
+        self.user = None
 
     async def connect(self):
         user = self.scope.get("user")
-        # Allow anonymous connections for testing; in production require authentication
-        # if user is None or user.is_anonymous:
-        #     await self.close()
-        #     return
+        
+        print(f"[CONSUMER] Connection attempt - User from scope: {user}")
+        print(f"[CONSUMER] User is_anonymous: {getattr(user, 'is_anonymous', 'N/A')}")
+        print(f"[CONSUMER] User is_authenticated: {getattr(user, 'is_authenticated', 'N/A')}")
+        
+        # Middleware already handled auth, but require authenticated user
+        if not user or user.is_anonymous:
+            print(f"[CONSUMER] ❌ Rejecting connection - user is anonymous")
+            await self.close(code=4001)  # Custom close code for auth failure
+            return
 
-        self.room_group_name = f"document_chat_{user.id if user and not user.is_anonymous else 'anon'}"
-        self.user = user  # Store user for later (may be AnonymousUser)
+        print(f"[CONSUMER] ✅ Accepting connection for user: {user}")
+        self.room_group_name = f"document_chat_{user.id}"
+        self.user = user  # Store authenticated user
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 
     async def disconnect(self, code):
-        await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
+        # Only discard from group if connection was successfully established
+        if self.room_group_name:
+            await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
 
     async def receive_json(self, content, **kwargs):
         """
