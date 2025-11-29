@@ -6,6 +6,7 @@ import { useAuth } from "../AuthContext";
 import UserMenu from "../components/UserMenu";
 import { documentService } from "../services/documentService";
 import "../styles/global.css";
+import "../styles/uploaded-files.css";
 
 /*
   UploadedFilesPage: shows a full-page table of uploaded files.
@@ -234,272 +235,255 @@ export default function UploadedFilesPage() {
         className={`main-with-sidebar ${sidebarOpen ? "" : "sidebar-closed"}`}
       >
         <div className="container">
-          {/* Top row: back + login, like other pages */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 20,
-            }}
-          >
-            <div className="page-back-button">
+          {/* Header with navigation */}
+          <div className="files-page-header">
+            <div className="header-left">
               <button
                 onClick={() => navigate("/dashboard")}
                 className="back-link-btn"
                 title="Go to dashboard"
               >
-                ← Dashboard
-              </button>
-            </div>
-
-            {isAuthenticated ? (
-              <UserMenu />
-            ) : (
-              <button
-                onClick={() => navigate("/login")}
-                className="login-button"
-                title="Login to your account"
-              >
                 <svg
+                  width="18"
+                  height="18"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                 >
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
+                  <line x1="19" y1="12" x2="5" y2="12"></line>
+                  <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
-                Login
+                <span>Back to Dashboard</span>
               </button>
-            )}
+            </div>
+
+            <div className="header-right">
+              {isAuthenticated ? (
+                <UserMenu />
+              ) : (
+                <button
+                  onClick={() => navigate("/login")}
+                  className="login-button"
+                  title="Login to your account"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <span>Login</span>
+                </button>
+              )}
+            </div>
           </div>
 
-          {/* Card with table */}
-          <div
-            style={{
-              maxWidth: 1100,
-              margin: "0 auto",
-              background: "var(--bg-primary)",
-              borderRadius: 12,
-              padding: 20,
-              boxShadow: "var(--shadow-lg)",
-              border: "1px solid var(--border-color)",
-            }}
-          >
-            <h2 style={{ marginTop: 0, color: "var(--text-primary)" }}>
-              Uploaded Files
-            </h2>
-            <p style={{ color: "var(--text-secondary)" }}>
-              Your uploaded documents. Columns: File name, Date of upload, Size.
-            </p>
+          {/* Main card with enhanced styling */}
+          <div className="files-container">
+            <div className="files-header-section">
+              <div className="files-header-content">
+                <div className="files-header-icon">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                    <polyline points="13 2 13 9 20 9"></polyline>
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="files-title">Uploaded Files</h1>
+                  <p className="files-subtitle">
+                    Manage and organize your expense documents
+                  </p>
+                </div>
+              </div>
+              <div className="files-stats">
+                <div className="stat-item">
+                  <span className="stat-label">Total Files</span>
+                  <span className="stat-value">{files.length}</span>
+                </div>
+              </div>
+            </div>
 
             {error && (
-              <div
-                style={{
-                  background: "rgba(220, 38, 38, 0.1)",
-                  border: "1px solid rgba(220, 38, 38, 0.3)",
-                  color: "#dc2626",
-                  padding: 12,
-                  borderRadius: 8,
-                  marginBottom: 12,
-                  fontSize: 14,
-                }}
-              >
-                ❌ {error}
+              <div className="error-alert">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>{error}</span>
               </div>
             )}
 
             {loading && (
-              <div
-                style={{
-                  padding: 32,
-                  textAlign: "center",
-                  color: "var(--text-secondary)",
-                }}
-              >
-                Loading documents...
+              <div className="loading-container">
+                <div className="loading-spinner"></div>
+                <p>Loading your documents...</p>
               </div>
             )}
 
-            <div style={{ overflow: "auto", marginTop: 12 }}>
-              <table
-                style={{ width: "100%", borderCollapse: "collapse" }}
-              >
-                <thead
-                  style={{
-                    textAlign: "left",
-                    color: "var(--text-secondary)",
-                    borderBottom: "1px solid var(--border-color)",
-                  }}
-                >
-                  <tr>
-                    <th
-                      style={{
-                        padding: 12,
-                        color: "var(--text-primary)",
-                      }}
-                    >
-                      File name
-                    </th>
-                    <th
-                      style={{
-                        padding: 12,
-                        color: "var(--text-primary)",
-                      }}
-                    >
-                      Date of upload
-                    </th>
-                    <th
-                      style={{
-                        padding: 12,
-                        color: "var(--text-primary)",
-                      }}
-                    >
-                      Size
-                    </th>
-                    <th
-                      style={{
-                        padding: 12,
-                        color: "var(--text-primary)",
-                      }}
-                    >
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {files.length === 0 && !loading && (
-                    <tr>
-                      <td
-                        colSpan="4"
-                        style={{
-                          padding: 12,
-                          color: "var(--text-tertiary)",
-                        }}
+            {!loading && (
+              <div className="files-content">
+                {files.length === 0 ? (
+                  <div className="empty-state">
+                    <div className="empty-icon">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
                       >
-                        No documents uploaded yet.{" "}
-                        <a
-                          href="/upload"
-                          style={{
-                            color: "#667eea",
-                            textDecoration: "none",
-                            fontWeight: 600,
-                          }}
-                        >
-                          Upload one now →
-                        </a>
-                      </td>
-                    </tr>
-                  )}
-
-                  {files.map((f) => (
-                    <tr
-                      key={f.id}
-                      style={{
-                        borderBottom: "1px solid var(--border-color)",
-                      }}
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                        <polyline points="13 2 13 9 20 9"></polyline>
+                      </svg>
+                    </div>
+                    <h3>No files uploaded yet</h3>
+                    <p>Start by uploading an expense document to get started</p>
+                    <button
+                      onClick={() => navigate("/upload")}
+                      className="upload-now-btn"
                     >
-                      {/* 🔹 use file_name from API */}
-                                            <td style={{ padding: 12 }}>
-                        <button
-                          onClick={() => navigate(`/documents/${f.id}`)}
-                          style={{
-                            background: "transparent",
-                            border: "none",
-                            padding: 0,
-                            margin: 0,
-                            color: "#667eea",
-                            cursor: "pointer",
-                            textDecoration: "underline",
-                            fontSize: "inherit",
-                            fontFamily: "inherit",
-                          }}
-                        >
-                          {f.file_name || f.name}
-                        </button>
-                      </td>
-
-                      {/* 🔹 use created_at from API */}
-                      <td
-                        style={{
-                          padding: 12,
-                          color: "var(--text-secondary)",
-                        }}
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
                       >
-                        {f.created_at
-                          ? new Date(f.created_at).toLocaleString()
-                          : f.addedAt
-                          ? new Date(f.addedAt).toLocaleString()
-                          : "-"}
-                      </td>
-
-                      {/* 🔹 size may not exist yet, so fallback */}
-                      <td
-                        style={{
-                          padding: 12,
-                          color: "var(--text-secondary)",
-                        }}
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                      </svg>
+                      <span>Upload Now</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="files-grid">
+                    {files.map((f, index) => (
+                      <div
+                        key={f.id}
+                        className="file-card"
+                        style={{ animationDelay: `${index * 0.05}s` }}
                       >
-                        {f.size ? formatSize(f.size) : "-"}
-                      </td>
-
-                      <td style={{ padding: 12 }}>
-                        <button
-                          onClick={() => deleteFile(f.id)}
-                          style={{
-                            padding: "6px",
-                            background: "transparent",
-                            color: "#c00",
-                            border: "1px solid transparent",
-                            borderRadius: 6,
-                            cursor: "pointer",
-                            fontWeight: 500,
-                            transition: "all 0.2s",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            width: "36px",
-                            height: "36px",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.target.style.background =
-                              "rgba(200, 0, 0, 0.1)";
-                            e.target.style.borderColor = "#fcc";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.target.style.background =
-                              "transparent";
-                            e.target.style.borderColor =
-                              "transparent";
-                          }}
-                          title="Delete file"
-                        >
-                          <svg
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
+                        <div className="file-card-header">
+                          <div className="file-icon">
+                            <svg
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                              <polyline points="13 2 13 9 20 9"></polyline>
+                            </svg>
+                          </div>
+                          <button
+                            onClick={() => deleteFile(f.id)}
+                            className="delete-btn"
+                            title="Delete file"
                           >
-                            <polyline points="3 6 5 6 21 6"></polyline>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            <line x1="10" y1="11" x2="10" y2="17"></line>
-                            <line x1="14" y1="11" x2="14" y2="17"></line>
-                          </svg>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <polyline points="3 6 5 6 21 6"></polyline>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                              <line x1="10" y1="11" x2="10" y2="17"></line>
+                              <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
+                          </button>
+                        </div>
+
+                        <div className="file-card-body">
+                          <button
+                            onClick={() => navigate(`/documents/${f.id}`)}
+                            className="file-name-btn"
+                          >
+                            {f.file_name || f.name}
+                          </button>
+                          <div className="file-details">
+                            <div className="detail-item">
+                              <span className="detail-label">Uploaded</span>
+                              <span className="detail-value">
+                                {f.created_at
+                                  ? new Date(f.created_at).toLocaleDateString(
+                                      "en-US",
+                                      {
+                                        month: "short",
+                                        day: "numeric",
+                                        year: "numeric",
+                                      }
+                                    )
+                                  : f.addedAt
+                                  ? new Date(f.addedAt).toLocaleDateString(
+                                      "en-US",
+                                      {
+                                        month: "short",
+                                        day: "numeric",
+                                        year: "numeric",
+                                      }
+                                    )
+                                  : "-"}
+                              </span>
+                            </div>
+                            <div className="detail-item">
+                              <span className="detail-label">Size</span>
+                              <span className="detail-value">
+                                {f.size ? formatSize(f.size) : "-"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="file-card-footer">
+                          <button
+                            onClick={() => navigate(`/documents/${f.id}`)}
+                            className="view-file-btn"
+                          >
+                            <span>View Details</span>
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <line x1="5" y1="12" x2="19" y2="12"></line>
+                              <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <footer className="page-footer">
-            © Finright — Demo frontend only
+            © Finright — Expense Management Platform
           </footer>
         </div>
       </main>
