@@ -50,7 +50,7 @@ export default function InsightsPage() {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/ai/coach/",
+        "http://127.0.0.1:8000/api/users/",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
