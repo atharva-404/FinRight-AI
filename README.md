@@ -79,6 +79,7 @@ Instead of just tracking expenses like traditional apps — FinRight AI analyzes
 - Financial planning automation
 - AI-powered long-term investment suggestions
 
+
 ---
 
 ## 🛠 Installation (Basic Setup)
