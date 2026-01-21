@@ -1,5 +1,6 @@
 // src/pages/InsightsPage.jsx - WebSocket Chat Implementation
 import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../ThemeContext";
 import { useAuth } from "../AuthContext";
@@ -141,34 +142,22 @@ export default function InsightsPage() {
 
     // Clear error
     setError(null);
+    setWsError(null);
 
-    const formData = new FormData();
-    if (file) formData.append("file", file);
-    formData.append("question", question);
-
-    try {
-      const response = await axios.post(
-        "http://127.0.0.1:8000/api/users/",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } }
-      );
-
-      const aiMessage = { type: "ai", content: response.data.advice };
-      setChatHistory((prev) => [...prev, aiMessage]);
-    } catch (err) {
-      // Try to extract a helpful server message, otherwise fall back to generic text
-      const serverMessage = err?.response?.data?.detail || err?.response?.data?.message || err?.message;
-      const friendly = serverMessage || "Failed to get AI insights. Please try again.";
-      setError("An error occurred. " + (serverMessage ? "See details below." : "Please try again later."));
-      console.error("API Error:", err);
-      // Add a single error entry to the chat
-      setChatHistory((prev) => [
-        ...prev,
-        { type: "error", content: friendly },
-      ]);
-    } finally {
-      setIsLoading(false);
+    // Send message through WebSocket
+    // Note: File handling would require multipart support or separate file upload logic not yet implemented via WS
+    if (file) {
+      // For now, just notify user that file upload isn't supported over WS in this demo
+      // or implement a separate file upload API call if needed.
+      // Assuming for now we just send the text.
+      console.warn("File upload not fully supported in this WS implementation yet.");
     }
+
+    sendMessage(question, null);
+
+    // Clear input
+    setQuestion("");
+    removeFile();
   };
 
   const handleClearHistory = () => setChatHistory([]);
@@ -176,29 +165,7 @@ export default function InsightsPage() {
   // overlay removed — no need for overlay left position
 
   // Reusable messages area
-  const MessagesArea = (
-    <div className="messages-container overlay-messages" role="log" aria-live="polite">
-      {chatHistory.length === 0 ? (
-        <div className="chat-welcome">
-          <h1>Financial Insights Assistant</h1>
-          <p>Upload your financial data and ask questions to get insights</p>
-          <div className="quick-tips">
-            <h4>Try asking:</h4>
-            <ul>
-              <li>"What are my biggest spending categories?"</li>
-              <li>"How can I save more money?"</li>
-              <li>"What's my savings trend?"</li>
-            </ul>
-    setWsError(null);
 
-    // Send message through WebSocket
-    // Note: File handling would require multipart support or separate file upload
-    sendMessage(question, null);
-
-    // Clear input
-    setQuestion("");
-    removeFile();
-  };
 
   // Keyboard handling
   const handleKeyDown = (e) => {

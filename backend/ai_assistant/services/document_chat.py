@@ -1,4 +1,4 @@
-# ai_assistant/services/document_chat.py
+ # ai_assistant/services/document_chat.py
 """
 Service for AI chat with SQL document content.
 Fetches document content and generates short, professional 2-line responses.

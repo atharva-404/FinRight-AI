@@ -5,3 +5,5 @@
 *.md
 /frontend/node_modules
 *.pyc
+*.pyc
+*.pyc
