@@ -22,7 +22,7 @@ urlpatterns = [
     path("expense-document/<str:doc_id>/summary/", ExpenseDocumentSummaryAPIView.as_view(), name="expense-document-summary"),
     path("expense-document/<str:mongo_id>/suggestions/", ExpenseSuggestionAPIView.as_view(), name="expense-document-suggestions"),
 
-        path("chat-sessions/", ChatSessionListAPIView.as_view(), name="chat-session-list"),
+    path("chat-sessions/", ChatSessionListAPIView.as_view(), name="chat-session-list"),
     path("chat-sessions/<int:session_id>/messages/", ChatMessageListAPIView.as_view(), name="chat-message-list"),
 
 ]

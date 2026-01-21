@@ -7,11 +7,15 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [accessToken, setAccessToken] = useState(null);
 
   // Initialize auth state on mount
   useEffect(() => {
+    const token = localStorage.getItem("access_token");
     const storedUser = authService.getStoredUser();
-    if (storedUser && authService.isAuthenticated()) {
+    
+    setAccessToken(token);
+    if (storedUser && token) {
       setUser(storedUser);
     }
     setLoading(false);
@@ -22,6 +26,7 @@ export function AuthProvider({ children }) {
     setError(null);
     try {
       const data = await authService.login({ email, password });
+      setAccessToken(data.access);
       setUser(data.user);
       return data;
     } catch (err) {
@@ -61,6 +66,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     authService.logout();
+    setAccessToken(null);
     setUser(null);
     setError(null);
   };
@@ -120,13 +126,14 @@ export function AuthProvider({ children }) {
     user,
     loading,
     error,
+    accessToken,
     login,
     register,
     logout,
     updateProfile,
     forgotPassword,
     resetPassword,
-    isAuthenticated: authService.isAuthenticated(),
+    isAuthenticated: !!accessToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,6 +1,7 @@
 import axios from "axios";
+import { API_ENDPOINTS } from "../config/api";
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://localhost:8000";
 
 // Create axios instance with base URL
 const apiClient = axios.create({
@@ -62,7 +63,7 @@ const authService = {
    */
   register: async (data) => {
     try {
-      const response = await apiClient.post("/auth/register/", data);
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.REGISTER, data);
       return response.data;
     } catch (error) {
       throw error.response?.data || { detail: "Registration failed" };
@@ -75,7 +76,7 @@ const authService = {
    */
   login: async (data) => {
     try {
-      const response = await apiClient.post("/auth/login/", data);
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, data);
       const { access, refresh, user } = response.data;
 
       // Store tokens and user data
@@ -103,7 +104,7 @@ const authService = {
    */
   getProfile: async () => {
     try {
-      const response = await apiClient.get("/auth/me/");
+      const response = await apiClient.get(API_ENDPOINTS.AUTH.ME);
       return response.data;
     } catch (error) {
       throw error.response?.data || { detail: "Failed to fetch profile" };
@@ -116,7 +117,7 @@ const authService = {
    */
   updateProfile: async (data) => {
     try {
-      const response = await apiClient.put("/auth/profile/update/", data);
+      const response = await apiClient.put(API_ENDPOINTS.AUTH.PROFILE_UPDATE, data);
       return response.data;
     } catch (error) {
       throw error.response?.data || { detail: "Profile update failed" };
@@ -131,7 +132,7 @@ const authService = {
       const refreshToken = localStorage.getItem("refresh_token");
       if (!refreshToken) throw new Error("No refresh token available");
 
-      const response = await apiClient.post("/auth/refresh/", {
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.REFRESH, {
         refresh: refreshToken,
       });
 
@@ -149,7 +150,7 @@ const authService = {
    */
   forgotPassword: async (email) => {
     try {
-      const response = await apiClient.post("/auth/forgot-password/", { email });
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, { email });
       return response.data;
     } catch (error) {
       throw error.response?.data || { detail: "Password reset request failed" };
@@ -162,7 +163,7 @@ const authService = {
    */
   resetPassword: async (data) => {
     try {
-      const response = await apiClient.post("/auth/reset-password/", data);
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data);
       return response.data;
     } catch (error) {
       throw error.response?.data || { detail: "Password reset failed" };
@@ -175,7 +176,7 @@ const authService = {
    */
   verifyEmail: async (token) => {
     try {
-      const response = await apiClient.post("/auth/verify-email/", { token });
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.VERIFY_EMAIL, { token });
       return response.data;
     } catch (error) {
       throw error.response?.data || { detail: "Email verification failed" };
@@ -188,7 +189,7 @@ const authService = {
    */
   resendVerificationEmail: async (email) => {
     try {
-      const response = await apiClient.post("/auth/send-verification-email/", {
+      const response = await apiClient.post(API_ENDPOINTS.AUTH.SEND_VERIFICATION_EMAIL, {
         email,
       });
       return response.data;
@@ -213,4 +214,5 @@ const authService = {
   },
 };
 
+export { apiClient };
 export default authService;

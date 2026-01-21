@@ -2,11 +2,14 @@
 import React, { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "./ThemeContext";
+import { useAuth } from "./AuthContext";
+import UserMenu from "./components/UserMenu";
 import "./styles/global.css";
 
 export default function HomeDashboardFrontend() {
   const navigate = useNavigate();
   const { isDark } = useTheme();
+  const { isAuthenticated } = useAuth();
   const [tab, setTab] = useState("overview");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const mainRef = useRef(null);
@@ -52,8 +55,10 @@ export default function HomeDashboardFrontend() {
 
         <button className={`btn ${tab === "overview" ? "active" : ""}`} onClick={openOverview}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="12" y1="2" x2="12" y2="22"></line>
-            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            <path d="M6 4h12" />
+            <path d="M6 8h12" />
+            <path d="M9 12c4 0 7 3 7 7" />
+            <path d="M9 12h7" />
           </svg>
           <span>Dashboard Overview</span>
         </button>
@@ -120,22 +125,26 @@ export default function HomeDashboardFrontend() {
                 ← Home
               </button>
             </div>
-<button
-  onClick={() => navigate("/login")}
-  className="login-button"
-  title="Login to your account"
->
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-  >
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-    <circle cx="12" cy="7" r="4"></circle>
-  </svg>
-  Login
-</button>
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <button
+                onClick={() => navigate("/login")}
+                className="login-button"
+                title="Login to your account"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Login
+              </button>
+            )}
           </div>
 
           <div className="section">

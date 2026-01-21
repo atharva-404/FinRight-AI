@@ -18,6 +18,7 @@ import Splash from "./pages/Splash";
 import { ThemeProvider } from "./ThemeContext";
 import { AuthProvider } from "./AuthContext";
 import { PrivateRoute } from "./components/PrivateRoute";
+import DocumentContentPage from "./pages/DocumentContentPage";
 // ------------------------------------------------------------------------
 
 /**
@@ -66,6 +67,7 @@ function AppContent() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/documents/:documentId" element={<DocumentContentPage />} />
       </Routes>
 
       {/* Floating Theme Toggle - visible on all pages */}

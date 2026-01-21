@@ -1,0 +1,32 @@
+{
+  "name": "finright-ai-testing",
+  "version": "1.0.0",
+  "description": "WebSocket Testing Suite for FinRight-AI",
+  "scripts": {
+    "test:ws": "node test-websocket.js",
+    "test:ws:watch": "nodemon test-websocket.js",
+    "test:connection": "node -e \"require('ws'); const WebSocket = require('ws'); const ws = new WebSocket('ws://localhost:8000/ws/ai/chat/'); ws.onopen = () => { console.log('✅ Connected'); ws.close(); process.exit(0); }; ws.onerror = () => { console.error('❌ Connection failed'); process.exit(1); };\"",
+    "server:backend": "cd ../backend && daphne -b 0.0.0.0 -p 8000 core.asgi:application",
+    "server:frontend": "cd ../frontend && npm start",
+    "server:both": "concurrently \"npm run server:backend\" \"npm run server:frontend\"",
+    "tester:open": "start websocket-test.html",
+    "debug:logs": "node -e \"console.log(require('./websocket-debug-utils.js'))\""
+  },
+  "keywords": [
+    "websocket",
+    "testing",
+    "finright",
+    "ai",
+    "chat"
+  ],
+  "author": "FinRight-AI Team",
+  "license": "MIT",
+  "devDependencies": {
+    "ws": "^8.13.0",
+    "nodemon": "^3.0.1",
+    "concurrently": "^8.2.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

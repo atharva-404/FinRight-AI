@@ -1,14 +1,64 @@
 // src/pages/HomeOverview.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../ThemeContext";
+import { documentService } from "../services/documentService";
 import "../styles/global.css";
 
 export default function HomeOverview() {
   const navigate = useNavigate();
   const { isDark } = useTheme();
+  const [lastDocument, setLastDocument] = useState(null);
+  const [documentSummary, setDocumentSummary] = useState(null);
+  const [suggestions, setSuggestions] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const lightBg = "linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%)";
+
+  // Fetch documents and their details
+  useEffect(() => {
+    const fetchDocumentData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const docs = await documentService.getDocuments();
+        
+        if (docs && docs.length > 0) {
+          // Get last document
+          const lastDoc = Array.isArray(docs) ? docs[0] : docs;
+          setLastDocument(lastDoc);
+
+          // Fetch summary if document has ID
+          if (lastDoc.id) {
+            try {
+              const summary = await documentService.getDocumentSummary(lastDoc.id);
+              setDocumentSummary(summary);
+            } catch (err) {
+              console.error('Error fetching summary:', err);
+            }
+          }
+
+          // Fetch suggestions if document has mongo_id
+          if (lastDoc.mongo_id) {
+            try {
+              const sugg = await documentService.getSuggestions(lastDoc.mongo_id);
+              setSuggestions(sugg);
+            } catch (err) {
+              console.error('Error fetching suggestions:', err);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching documents:', err);
+        setError('Could not load document data. Please upload a file first.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDocumentData();
+  }, []);
 
   return (
     <div style={{ background: lightBg, minHeight: "100vh", padding: 0 }}>
@@ -179,7 +229,204 @@ export default function HomeOverview() {
           </div>
         </div>
 
-        {/* Features Section */}
+        {/* Document Summary and Suggestions Section */}
+        {!loading && (lastDocument || documentSummary || suggestions) && (
+          <div style={{
+            paddingTop: 40,
+            paddingBottom: 40
+          }}>
+            <h2 style={{
+              fontSize: 28,
+              fontWeight: 800,
+              marginBottom: 24,
+              color: "var(--text-primary)"
+            }}>
+              📊 Latest Document Analysis
+            </h2>
+
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+              gap: 20
+            }}>
+              {/* Document Info Card */}
+              {lastDocument && (
+                <div style={{
+                  background: "var(--bg-primary)",
+                  borderRadius: 12,
+                  padding: 24,
+                  border: "1px solid var(--border-color)",
+                  boxShadow: "var(--shadow-md)"
+                }}>
+                  <div style={{ fontSize: 12, color: "#667eea", fontWeight: 700, marginBottom: 8 }}>
+                    UPLOADED DOCUMENT
+                  </div>
+                  <h3 style={{
+                    fontSize: 18,
+                    fontWeight: 700,
+                    color: "var(--text-primary)",
+                    marginBottom: 12
+                  }}>
+                    {lastDocument.name || "Document"}
+                  </h3>
+                  <div style={{
+                    fontSize: 13,
+                    color: "var(--text-secondary)",
+                    lineHeight: 1.6
+                  }}>
+                    <div>📄 Uploaded: {lastDocument.addedAt ? new Date(lastDocument.addedAt).toLocaleDateString() : 'Unknown'}</div>
+                    {lastDocument.type && <div>🏷️ Type: {lastDocument.type}</div>}
+                  </div>
+                  <button
+                    onClick={() => navigate("/files")}
+                    style={{
+                      marginTop: 16,
+                      padding: "8px 16px",
+                      background: "rgba(102, 126, 234, 0.1)",
+                      border: "1px solid #667eea",
+                      color: "#667eea",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      transition: "all 0.2s"
+                    }}
+                    onMouseOver={(e) => {
+                      e.target.style.background = "#667eea";
+                      e.target.style.color = "#fff";
+                    }}
+                    onMouseOut={(e) => {
+                      e.target.style.background = "rgba(102, 126, 234, 0.1)";
+                      e.target.style.color = "#667eea";
+                    }}
+                  >
+                    View All Files →
+                  </button>
+                </div>
+              )}
+
+              {/* Summary Card */}
+              {documentSummary && (
+                <div style={{
+                  background: "var(--bg-primary)",
+                  borderRadius: 12,
+                  padding: 24,
+                  border: "1px solid var(--border-color)",
+                  boxShadow: "var(--shadow-md)"
+                }}>
+                  <div style={{ fontSize: 12, color: "#764ba2", fontWeight: 700, marginBottom: 8 }}>
+                    SUMMARY
+                  </div>
+                  <h3 style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: "var(--text-primary)",
+                    marginBottom: 12
+                  }}>
+                    Document Insights
+                  </h3>
+                  <div style={{
+                    fontSize: 13,
+                    color: "var(--text-secondary)",
+                    lineHeight: 1.8,
+                    maxHeight: 200,
+                    overflow: "auto"
+                  }}>
+                    {typeof documentSummary === 'string' ? documentSummary : JSON.stringify(documentSummary)}
+                  </div>
+                </div>
+              )}
+
+              {/* Suggestions Card */}
+              {suggestions && (
+                <div style={{
+                  background: "var(--bg-primary)",
+                  borderRadius: 12,
+                  padding: 24,
+                  border: "1px solid var(--border-color)",
+                  boxShadow: "var(--shadow-md)"
+                }}>
+                  <div style={{ fontSize: 12, color: "#22c55e", fontWeight: 700, marginBottom: 8 }}>
+                    AI SUGGESTIONS
+                  </div>
+                  <h3 style={{
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: "var(--text-primary)",
+                    marginBottom: 12
+                  }}>
+                    Recommendations
+                  </h3>
+                  <div style={{
+                    fontSize: 13,
+                    color: "var(--text-secondary)",
+                    lineHeight: 1.8,
+                    maxHeight: 200,
+                    overflow: "auto"
+                  }}>
+                    {typeof suggestions === 'string' ? suggestions : JSON.stringify(suggestions)}
+                  </div>
+                  <button
+                    onClick={() => navigate("/insights")}
+                    style={{
+                      marginTop: 16,
+                      padding: "8px 16px",
+                      background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      border: "none",
+                      color: "#fff",
+                      borderRadius: 8,
+                      cursor: "pointer",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      transition: "all 0.2s"
+                    }}
+                    onMouseOver={(e) => e.target.style.transform = "translateY(-2px)"}
+                    onMouseOut={(e) => e.target.style.transform = "translateY(0)"}
+                  >
+                    Ask AI More →
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Error or Empty State */}
+        {!loading && !lastDocument && !error && (
+          <div style={{
+            paddingTop: 40,
+            paddingBottom: 40,
+            textAlign: "center"
+          }}>
+            <p style={{
+              fontSize: 16,
+              color: "var(--text-secondary)",
+              marginBottom: 20
+            }}>
+              No documents uploaded yet. Upload a file to see AI-powered insights.
+            </p>
+            <button
+              onClick={() => navigate("/upload")}
+              style={{
+                padding: "12px 28px",
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                color: "#fff",
+                border: "none",
+                borderRadius: 8,
+                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: 14,
+                transition: "all 0.3s",
+                boxShadow: "0 4px 12px rgba(102, 126, 234, 0.3)"
+              }}
+              onMouseOver={(e) => e.target.style.transform = "translateY(-2px)"}
+              onMouseOut={(e) => e.target.style.transform = "translateY(0)"}
+            >
+              📁 Upload First Document
+            </button>
+          </div>
+        )}
+        
         <div style={{
           paddingTop: 40,
           paddingBottom: 60
