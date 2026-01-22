@@ -1,13 +1,11 @@
 // src/pages/HomeOverview.jsx
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../ThemeContext";
 import { documentService } from "../services/documentService";
 import "../styles/global.css";
 
 export default function HomeOverview() {
   const navigate = useNavigate();
-  const { isDark } = useTheme();
   const [lastDocument, setLastDocument] = useState(null);
   const [documentSummary, setDocumentSummary] = useState(null);
   const [suggestions, setSuggestions] = useState(null);
@@ -23,7 +21,7 @@ export default function HomeOverview() {
         setLoading(true);
         setError(null);
         const docs = await documentService.getDocuments();
-        
+
         if (docs && docs.length > 0) {
           // Get last document
           const lastDoc = Array.isArray(docs) ? docs[0] : docs;
@@ -35,7 +33,7 @@ export default function HomeOverview() {
               const summary = await documentService.getDocumentSummary(lastDoc.id);
               setDocumentSummary(summary);
             } catch (err) {
-              console.error('Error fetching summary:', err);
+              // Summary fetch failed, continue without it
             }
           }
 
@@ -45,12 +43,11 @@ export default function HomeOverview() {
               const sugg = await documentService.getSuggestions(lastDoc.mongo_id);
               setSuggestions(sugg);
             } catch (err) {
-              console.error('Error fetching suggestions:', err);
+              // Suggestions fetch failed, continue without them
             }
           }
         }
       } catch (err) {
-        console.error('Error fetching documents:', err);
         setError('Could not load document data. Please upload a file first.');
       } finally {
         setLoading(false);
@@ -84,10 +81,10 @@ export default function HomeOverview() {
           WebkitTextFillColor: "transparent",
           color: "#667eea"
         }}>
-          Finright
+          FinRight
         </div>
-        <button 
-          onClick={() => navigate("/dashboard")} 
+        <button
+          onClick={() => navigate("/dashboard")}
           style={{
             padding: "10px 20px",
             background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
@@ -123,7 +120,7 @@ export default function HomeOverview() {
             fontWeight: 600,
             color: "#667eea"
           }}>
-            ✨ Welcome to Finright
+            ✨ Welcome to FinRight
           </div>
 
           <h1 style={{
@@ -161,7 +158,7 @@ export default function HomeOverview() {
             justifyContent: "center",
             marginBottom: 60
           }}>
-            <button 
+            <button
               onClick={() => navigate("/upload")}
               style={{
                 padding: "14px 32px",
@@ -180,7 +177,7 @@ export default function HomeOverview() {
             >
               📁 Upload File
             </button>
-            <button 
+            <button
               onClick={() => navigate("/insights")}
               style={{
                 padding: "14px 32px",
@@ -426,7 +423,7 @@ export default function HomeOverview() {
             </button>
           </div>
         )}
-        
+
         <div style={{
           paddingTop: 40,
           paddingBottom: 60
@@ -438,7 +435,7 @@ export default function HomeOverview() {
             marginBottom: 12,
             color: "var(--text-primary)"
           }}>
-            How Finright Works
+            How FinRight Works
           </h2>
           <p style={{
             fontSize: 16,
@@ -538,7 +535,7 @@ export default function HomeOverview() {
             fontWeight: 800,
             marginBottom: 16
           }}>
-            Why Choose Finright?
+            Why Choose FinRight?
           </h2>
           <p style={{
             fontSize: 16,
@@ -582,7 +579,7 @@ export default function HomeOverview() {
           }}>
             Ready to Transform Your Finances?
           </h2>
-          <button 
+          <button
             onClick={() => navigate("/upload")}
             style={{
               padding: "16px 40px",
@@ -614,7 +611,7 @@ export default function HomeOverview() {
         marginTop: 40
       }}>
         <div style={{ marginBottom: 12 }}>
-          © 2024 Finright. Your intelligent financial assistant.
+          © 2024 FinRight. Your intelligent financial assistant.
         </div>
         <div style={{ fontSize: 12, color: "rgba(255, 255, 255, 0.9)" }}>
           Upload files securely, analyze spending patterns, and get AI-powered insights.

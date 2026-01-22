@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
               backgroundClip: "text",
             }}
           >
-            Finright
+            FinRight
           </h1>
         </div>
 

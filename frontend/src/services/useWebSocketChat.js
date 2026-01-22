@@ -25,36 +25,29 @@ export const useWebSocketChat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [currentStreamingText, setCurrentStreamingText] = useState('');
   const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const maxRetries = 5;
 
   // Build WebSocket URL dynamically with auth token
   const getWebSocketUrl = useCallback(() => {
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    // Look for 'access_token' (JWT), not 'token' (DRF Token)
     const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
-    console.log('[WS] Token from storage:', token ? `${token.substring(0, 20)}...` : 'NOT FOUND');
-    console.log('[WS] localStorage.access_token:', localStorage.getItem('access_token'));
-    console.log('[WS] sessionStorage.access_token:', sessionStorage.getItem('access_token'));
     const urlParams = token ? `?token=${token}` : '';
     const url = `${protocol}//localhost:8000/ws/ai/chat/${urlParams}`;
-    console.log('[WS] Full WebSocket URL:', url);
     return url;
   }, []);
 
   // Connect to WebSocket
   const connect = useCallback(() => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
-      console.log('WebSocket already connected');
       return;
     }
 
     try {
       const wsUrl = getWebSocketUrl();
-      console.log('Connecting to WebSocket:', wsUrl);
-
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
-        console.log('WebSocket connected');
         setIsConnected(true);
         setError(null);
       };
@@ -62,7 +55,6 @@ export const useWebSocketChat = () => {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log('WebSocket message received:', data);
 
           switch (data.type) {
             case 'token':
@@ -97,8 +89,7 @@ export const useWebSocketChat = () => {
 
             case 'error':
               // Error message
-              console.error('WebSocket error:', data.error);
-              setError(data.error);
+              setError(data.error || 'An error occurred while processing your request');
               setMessages((prev) => [
                 ...prev,
                 {
@@ -112,30 +103,28 @@ export const useWebSocketChat = () => {
               break;
 
             default:
-              console.warn('Unknown message type:', data.type);
+              // Ignore unknown message types
+              break;
           }
         } catch (err) {
-          console.error('Error parsing WebSocket message:', err);
-          setError('Failed to parse server response');
+          setError('Unable to process server response. Please try again.');
         }
       };
 
       ws.onerror = (event) => {
-        console.error('WebSocket error:', event);
-        setError('WebSocket connection error');
+        setError('Connection error. Please check your internet connection.');
         setIsConnected(false);
       };
 
       ws.onclose = (event) => {
-        console.log('WebSocket disconnected:', event.code, event.reason);
         setIsConnected(false);
         setIsTyping(false);
+        // Don't show error here - let the reconnection logic handle it
       };
 
       wsRef.current = ws;
     } catch (err) {
-      console.error('Failed to connect WebSocket:', err);
-      setError('Failed to connect to chat service');
+      setError('Unable to connect to chat service. Please try again later.');
       setIsConnected(false);
     }
   }, [getWebSocketUrl]);
@@ -180,12 +169,10 @@ export const useWebSocketChat = () => {
           ...(documentId && { document_id: documentId }),
         };
 
-        console.log('Sending WebSocket message:', payload);
         wsRef.current.send(JSON.stringify(payload));
         setError(null);
       } catch (err) {
-        console.error('Failed to send message:', err);
-        setError('Failed to send message');
+        setError('Unable to send message. Please try again.');
       }
     },
     []
@@ -200,17 +187,27 @@ export const useWebSocketChat = () => {
     };
   }, [connect, disconnect]);
 
-  // Reconnect if connection is lost
+  // Reconnect if connection is lost (with max retry limit)
   useEffect(() => {
-    if (!isConnected) {
-      const reconnectTimeout = setTimeout(() => {
-        console.log('Attempting to reconnect...');
-        connect();
-      }, 3000);
+    let reconnectTimeout;
 
-      return () => clearTimeout(reconnectTimeout);
+    if (!isConnected && retryCount < maxRetries) {
+      reconnectTimeout = setTimeout(() => {
+        setRetryCount(prev => prev + 1);
+        connect();
+      }, Math.min(3000 * (retryCount + 1), 15000)); // Exponential backoff, max 15s
+    } else if (retryCount >= maxRetries && !isConnected) {
+      setError('Unable to connect after multiple attempts. Please refresh the page.');
     }
-  }, [isConnected, connect]);
+
+    // Reset retry count and clear error on successful connection
+    if (isConnected && retryCount > 0) {
+      setRetryCount(0);
+      setError(null); // Clear any reconnection errors
+    }
+
+    return () => clearTimeout(reconnectTimeout);
+  }, [isConnected, retryCount, connect, maxRetries]);
 
   return {
     isConnected,

@@ -90,6 +90,20 @@ export const documentService = {
       throw error.response?.data || error.message;
     }
   },
+
+  /**
+   * Delete a document
+   * @param {string} docId - Document ID
+   * @returns {Promise} Delete confirmation
+   */
+  deleteDocument: async (docId) => {
+    try {
+      const response = await documentAPI.delete(`/api/ai/documents/${docId}/`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error.message;
+    }
+  },
 };
 
 export default documentService;

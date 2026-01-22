@@ -177,7 +177,7 @@ export default function DocumentContentPage() {
           )}
         </button>
 
-        <h3>Finright</h3>
+        <h3>FinRight</h3>
 
         <button
           className={`btn ${tab === "overview" ? "active" : ""}`}
@@ -697,7 +697,7 @@ export default function DocumentContentPage() {
                           }}
                         >
                           {typeof value === "string" &&
-                          value.length > 200 ? (
+                            value.length > 200 ? (
                             <div
                               style={{
                                 maxHeight: 300,
@@ -781,7 +781,7 @@ export default function DocumentContentPage() {
           </div>
 
           <footer className="page-footer">
-            © Finright — Demo frontend only
+            © FinRight — Expense Management Platform
           </footer>
         </div>
       </main>

@@ -1,8 +1,6 @@
 // src/pages/InsightsPage.jsx - WebSocket Chat Implementation
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../ThemeContext";
 import { useAuth } from "../AuthContext";
 import UserMenu from "../components/UserMenu";
 import { useWebSocketChat } from "../services/useWebSocketChat";
@@ -11,7 +9,6 @@ import "../styles/insights.css";
 
 export default function InsightsPage() {
   const navigate = useNavigate();
-  const { isDark } = useTheme();
   const { isAuthenticated } = useAuth();
 
   // WebSocket chat hook
@@ -55,11 +52,10 @@ export default function InsightsPage() {
     setIsLoading(isTyping);
   }, [isTyping]);
 
-  // Update error state
+  // Update error state - sync with WebSocket errors
   useEffect(() => {
-    if (wsError) {
-      setError(wsError);
-    }
+    // Only set error if there's an actual error, clear it when wsError is null
+    setError(wsError);
   }, [wsError]);
 
   // Auto-scroll to bottom when new messages arrive or loading state changes
@@ -77,11 +73,9 @@ export default function InsightsPage() {
     }
   }, [question]);
 
-  // Connection status indicator
+  // Connection status monitoring
   useEffect(() => {
-    if (!isConnected) {
-      console.log("Attempting to reconnect...");
-    }
+    // Monitor connection status silently
   }, [isConnected]);
 
   // Navigation functions
@@ -144,15 +138,13 @@ export default function InsightsPage() {
     setError(null);
     setWsError(null);
 
-    // Send message through WebSocket
-    // Note: File handling would require multipart support or separate file upload logic not yet implemented via WS
+    // Check if file is attached - show warning
     if (file) {
-      // For now, just notify user that file upload isn't supported over WS in this demo
-      // or implement a separate file upload API call if needed.
-      // Assuming for now we just send the text.
-      console.warn("File upload not fully supported in this WS implementation yet.");
+      setError('File uploads are not supported in chat. Please use the Upload page to upload documents.');
+      return;
     }
 
+    // Send message through WebSocket
     sendMessage(question, null);
 
     // Clear input
@@ -160,7 +152,7 @@ export default function InsightsPage() {
     removeFile();
   };
 
-  const handleClearHistory = () => setChatHistory([]);
+
 
   // overlay removed — no need for overlay left position
 
@@ -326,6 +318,29 @@ export default function InsightsPage() {
         </button>
 
         <button
+          className="btn"
+          onClick={() => navigate("/financial-health")}
+          title="Go to FinRight Score"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          <span>FinRight Score</span>
+        </button>
+
+        <button
+          className="btn"
+          onClick={() => navigate("/wallet")}
+          title="Go to Wallet"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+          <span>Wallet</span>
+        </button>
+
+        <button
           className={`btn ${tab === "upload" ? "active" : ""}`}
           onClick={openUpload}
           title="Go to Upload"
@@ -363,6 +378,22 @@ export default function InsightsPage() {
 
         <div className="sidebar-footer">
           <button
+            onClick={() => {
+              if (chatHistory.length > 0) {
+                const confirmed = window.confirm('Are you sure you want to clear all chat history?');
+                if (confirmed) {
+                  setWsMessages([]);
+                  setChatHistory([]);
+                }
+              }
+            }}
+            className="back-to-top-btn"
+            title="Clear chat history"
+            style={{ marginBottom: 8 }}
+          >
+            🗑️ Clear Chat
+          </button>
+          <button
             onClick={backToTop}
             className="back-to-top-btn"
             title="Scroll to top"
@@ -376,6 +407,7 @@ export default function InsightsPage() {
       <main
         ref={mainRef}
         className={`insights-main ${sidebarOpen ? "" : "sidebar-closed"}`}
+        style={{ overflowY: "auto", height: "100vh" }}
       >
         {/* Header */}
         <div className="insights-header">

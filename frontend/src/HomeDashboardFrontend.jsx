@@ -32,7 +32,7 @@ export default function HomeDashboardFrontend() {
   return (
     <div style={{ display: "flex" }}>
       <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-        <button 
+        <button
           className="sidebar-toggle-btn"
           onClick={() => setSidebarOpen(!sidebarOpen)}
           title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
@@ -51,7 +51,7 @@ export default function HomeDashboardFrontend() {
           )}
         </button>
 
-        <h3>Finright</h3>
+        <h3>FinRight</h3>
 
         <button className={`btn ${tab === "overview" ? "active" : ""}`} onClick={openOverview}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -61,6 +61,19 @@ export default function HomeDashboardFrontend() {
             <path d="M9 12h7" />
           </svg>
           <span>Dashboard Overview</span>
+        </button>
+        <button className="btn" onClick={() => navigate("/financial-health")}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          <span>FinRight Score</span>
+        </button>
+        <button className="btn" onClick={() => navigate("/wallet")}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+          <span>Wallet</span>
         </button>
         <button className="btn" onClick={openUpload}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -84,16 +97,16 @@ export default function HomeDashboardFrontend() {
           <span>ChatBot</span>
         </button>
 
-        <div style={{ marginTop: "auto", fontSize: 12, color: "var(--text-tertiary)" }}>Sidebar (UI-only)</div>
+        <div style={{ marginTop: "auto" }}></div>
 
         <div>
-          <button 
-            onClick={backToTop} 
-            style={{ 
-              padding: "8px 10px", 
-              borderRadius: 8, 
-              border: "none", 
-              cursor: "pointer", 
+          <button
+            onClick={backToTop}
+            style={{
+              padding: "8px 10px",
+              borderRadius: 8,
+              border: "none",
+              cursor: "pointer",
               background: "var(--bg-tertiary)",
               color: "var(--text-primary)",
               transition: "all 0.2s"
@@ -112,13 +125,16 @@ export default function HomeDashboardFrontend() {
         </div>
       </aside>
 
-      <main ref={mainRef} className={`main-with-sidebar ${sidebarOpen ? "" : "sidebar-closed"}`}>
+      <main ref={mainRef} className={`main-with-sidebar ${sidebarOpen ? "" : "sidebar-closed"}`} style={{
+        overflowY: "auto",
+        height: "100vh"
+      }}>
         <div className="container">
           {/* Back Button and Login */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
             <div className="page-back-button">
-              <button 
-                onClick={() => navigate("/")} 
+              <button
+                onClick={() => navigate("/")}
                 className="back-link-btn"
                 title="Go to home"
               >
@@ -149,7 +165,7 @@ export default function HomeDashboardFrontend() {
 
           <div className="section">
             <h2>Dashboard Overview</h2>
-            <p style={{ color: "var(--text-secondary)" }}>Finright summarizes your transactions and answers your finance questions using AI.</p>
+            <p style={{ color: "var(--text-secondary)" }}>FinRight summarizes your transactions and answers your finance questions using AI.</p>
 
             <div style={{ marginTop: 12 }} className="feature-grid">
               <div className="section" style={{ background: "var(--bg-tertiary)" }}>
@@ -189,7 +205,7 @@ export default function HomeDashboardFrontend() {
             </div>
           </div>
 
-          <footer className="page-footer">© Finright — Demo frontend only</footer>
+          <footer className="page-footer">© FinRight — Expense Management Platform</footer>
         </div>
       </main>
     </div>

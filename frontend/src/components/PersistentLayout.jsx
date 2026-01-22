@@ -24,7 +24,7 @@ export default function PersistentLayout({ children }) {
   return (
     <div style={{ display: "flex" }}>
       <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-        <button 
+        <button
           className="sidebar-toggle-btn"
           onClick={() => setSidebarOpen(!sidebarOpen)}
           title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
@@ -43,7 +43,7 @@ export default function PersistentLayout({ children }) {
           )}
         </button>
 
-        <h3>Finright</h3>
+        <h3>FinRight</h3>
 
         <button className={`btn`} onClick={openDashboard}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -80,13 +80,13 @@ export default function PersistentLayout({ children }) {
         <div style={{ marginTop: "auto", fontSize: 12, color: "var(--text-tertiary)" }}>Sidebar (UI-only)</div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <button 
-            onClick={backToTop} 
-            style={{ 
-              padding: "8px 10px", 
-              borderRadius: 8, 
-              border: "none", 
-              cursor: "pointer", 
+          <button
+            onClick={backToTop}
+            style={{
+              padding: "8px 10px",
+              borderRadius: 8,
+              border: "none",
+              cursor: "pointer",
               background: "var(--bg-tertiary)",
               color: "var(--text-primary)",
               transition: "all 0.2s"

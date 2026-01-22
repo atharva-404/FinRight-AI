@@ -1,14 +1,12 @@
 // frontend/src/pages/UploadPage.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../ThemeContext";
 import { useAuth } from "../AuthContext";
 import UserMenu from "../components/UserMenu";
 import { documentService } from "../services/documentService";
 
 export default function UploadPage() {
   const navigate = useNavigate();
-  const { isDark } = useTheme();
   const { isAuthenticated } = useAuth();
 
   // ---- Sidebar state (same pattern as dashboard) ----
@@ -76,7 +74,44 @@ export default function UploadPage() {
 
   function handleFileInput(e) {
     if (!e.target.files) return;
-    addFiles(e.target.files);
+
+    const selectedFiles = Array.from(e.target.files);
+    const validFiles = [];
+    const errors = [];
+
+    // Validate each file
+    selectedFiles.forEach(file => {
+      // Check file type
+      const validTypes = ['.csv', '.pdf', '.xlsx', '.xls'];
+      const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+
+      if (!validTypes.includes(fileExt)) {
+        errors.push(`${file.name}: Invalid file type. Only CSV, PDF, and Excel files are allowed.`);
+        return;
+      }
+
+      // Check file size (max 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      if (file.size > maxSize) {
+        errors.push(`${file.name}: File size exceeds 10MB limit.`);
+        return;
+      }
+
+      validFiles.push(file);
+    });
+
+    // Show errors if any
+    if (errors.length > 0) {
+      setUploadError(errors.join(' '));
+    } else {
+      setUploadError(null);
+    }
+
+    // Add valid files
+    if (validFiles.length > 0) {
+      addFiles(validFiles);
+    }
+
     e.target.value = "";
   }
 
@@ -109,7 +144,6 @@ export default function UploadPage() {
             return { success: true, data: response, fileId: file.id };
           })
           .catch((error) => {
-            console.error('Upload error:', error);
             return { success: false, error, fileId: file.id };
           });
       });
@@ -133,7 +167,6 @@ export default function UploadPage() {
         setUploading(false);
       })
       .catch((error) => {
-        console.error('Upload process error:', error);
         setUploadError('Upload failed. Please try again.');
         setUploading(false);
       });
@@ -184,7 +217,7 @@ export default function UploadPage() {
           )}
         </button>
 
-        <h3>Finright</h3>
+        <h3>FinRight</h3>
 
         <button
           className={`btn ${tab === "overview" ? "active" : ""}`}
@@ -200,6 +233,21 @@ export default function UploadPage() {
             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
           </svg>
           <span>Dashboard Overview</span>
+        </button>
+
+        <button className="btn" onClick={() => navigate("/financial-health")}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          <span>FinRight Score</span>
+        </button>
+
+        <button className="btn" onClick={() => navigate("/wallet")}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+          <span>Wallet</span>
         </button>
 
         <button
@@ -250,15 +298,7 @@ export default function UploadPage() {
           <span>ChatBot</span>
         </button>
 
-        <div
-          style={{
-            marginTop: "auto",
-            fontSize: 12,
-            color: "var(--text-tertiary)",
-          }}
-        >
-          Sidebar (UI-only)
-        </div>
+
 
         <div>
           <button
@@ -290,6 +330,7 @@ export default function UploadPage() {
       <main
         ref={mainRef}
         className={`main-with-sidebar ${sidebarOpen ? "" : "sidebar-closed"}`}
+        style={{ overflowY: "auto", height: "100vh" }}
       >
         <div className="container">
           {/* Top row: back + login (similar to dashboard top bar) */}
@@ -653,7 +694,7 @@ export default function UploadPage() {
           </div>
 
           <footer className="page-footer">
-            © Finright 
+            © FinRight
           </footer>
         </div>
       </main>

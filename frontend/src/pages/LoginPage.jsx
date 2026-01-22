@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../ThemeContext";
 import { useAuth } from "../AuthContext";
 import "../styles/global.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { isDark } = useTheme();
-  const { login, loading: authLoading, error: authError } = useAuth();
+  const { login, error: authError } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -70,7 +68,7 @@ export default function LoginPage() {
             WebkitTextFillColor: "transparent",
             backgroundClip: "text"
           }}>
-            Finright
+            FinRight
           </h1>
           <p style={{
             fontSize: 14,
@@ -273,44 +271,32 @@ export default function LoginPage() {
             margin: 0
           }}>
             Don't have an account?{" "}
-              <button
-                onClick={handleSignup}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#667eea",
-                  cursor: "pointer",
-                  fontWeight: 600,
-                  fontSize: 14,
-                  transition: "all 0.2s ease"
-                }}
-                onMouseOver={(e) => {
-                  e.target.style.color = "#764ba2";
-                  e.target.style.textDecoration = "underline";
-                }}
-                onMouseOut={(e) => {
-                  e.target.style.color = "#667eea";
-                  e.target.style.textDecoration = "none";
-                }}
-              >
-                Sign Up
-              </button>
+            <button
+              onClick={handleSignup}
+              style={{
+                background: "none",
+                border: "none",
+                color: "#667eea",
+                cursor: "pointer",
+                fontWeight: 600,
+                fontSize: 14,
+                transition: "all 0.2s ease"
+              }}
+              onMouseOver={(e) => {
+                e.target.style.color = "#764ba2";
+                e.target.style.textDecoration = "underline";
+              }}
+              onMouseOut={(e) => {
+                e.target.style.color = "#667eea";
+                e.target.style.textDecoration = "none";
+              }}
+            >
+              Sign Up
+            </button>
           </p>
         </div>
 
-        {/* Demo Info */}
-        <div style={{
-          marginTop: 24,
-          padding: 12,
-          background: "var(--bg-tertiary)",
-          borderRadius: 8,
-          fontSize: 12,
-          color: "var(--text-tertiary)",
-          textAlign: "center",
-          border: "1px solid var(--border-color)"
-        }}>
-          Backend API: {process.env.REACT_APP_API_URL}
-        </div>
+
       </div>
     </div>
   );

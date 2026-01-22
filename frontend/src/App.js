@@ -13,6 +13,8 @@ import UploadPage from "./pages/UploadPage";
 import UploadedFilesPage from "./pages/UploadedFilesPage";
 import ProfilePage from "./pages/ProfilePage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import WalletPage from "./pages/WalletPage";
+import FinancialHealthPage from "./pages/FinancialHealthPage";
 import FloatingThemeToggle from "./components/FloatingThemeToggle";
 import Splash from "./pages/Splash";
 import { ThemeProvider } from "./ThemeContext";
@@ -63,6 +65,8 @@ function AppContent() {
         <Route path="/dashboard" element={<PrivateRoute element={<HomeDashboardFrontend />} />} />
         <Route path="/upload" element={<PrivateRoute element={<UploadPage />} />} />
         <Route path="/files" element={<PrivateRoute element={<UploadedFilesPage />} />} />
+        <Route path="/wallet" element={<PrivateRoute element={<WalletPage />} />} />
+        <Route path="/financial-health" element={<PrivateRoute element={<FinancialHealthPage />} />} />
         <Route path="/profile" element={<PrivateRoute element={<ProfilePage />} />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<LoginPage />} />

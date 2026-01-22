@@ -73,7 +73,7 @@ export default function Signup() {
           <div className="brand">
             <div className="brand-mark" aria-hidden="true">FR</div>
             <div>
-              <h1 className="brand-title">Finright</h1>
+              <h1 className="brand-title">FinRight</h1>
               <p className="brand-sub">Financial Intelligence at your fingertips</p>
             </div>
           </div>
@@ -82,7 +82,7 @@ export default function Signup() {
 
         <main className="card-body">
           <h2 className="title">Create an account</h2>
-          <p className="subtitle">Start using Finright — secure, fast, and smart.</p>
+          <p className="subtitle">Start using FinRight — secure, fast, and smart.</p>
 
           {errors.submit && (
             <div

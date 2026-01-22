@@ -9,6 +9,20 @@ from .views import (
     ExpenseDocumentSummaryAPIView,
     ExpenseSuggestionAPIView,
 )
+from .wallet_views import (
+    get_wallet,
+    add_money,
+    withdraw_money,
+    get_transactions,
+    get_timeline,
+)
+from .financial_health_views import (
+    get_current_score,
+    get_score_history,
+    get_score_breakdown,
+    recalculate_score,
+    get_recommendations,
+)
 
 urlpatterns = [
     # Upload + extract text + store SQL + store structured Mongo + generate summary
@@ -24,5 +38,19 @@ urlpatterns = [
 
     path("chat-sessions/", ChatSessionListAPIView.as_view(), name="chat-session-list"),
     path("chat-sessions/<int:session_id>/messages/", ChatMessageListAPIView.as_view(), name="chat-message-list"),
+
+    # Wallet endpoints
+    path("wallet/", get_wallet, name="wallet-detail"),
+    path("wallet/add-money/", add_money, name="wallet-add-money"),
+    path("wallet/withdraw/", withdraw_money, name="wallet-withdraw"),
+    path("wallet/transactions/", get_transactions, name="wallet-transactions"),
+    path("wallet/timeline/", get_timeline, name="wallet-timeline"),
+
+    # Financial Health Score endpoints
+    path("financial-health/score/", get_current_score, name="financial-health-score"),
+    path("financial-health/history/", get_score_history, name="financial-health-history"),
+    path("financial-health/breakdown/", get_score_breakdown, name="financial-health-breakdown"),
+    path("financial-health/recalculate/", recalculate_score, name="financial-health-recalculate"),
+    path("financial-health/recommendations/", get_recommendations, name="financial-health-recommendations"),
 
 ]

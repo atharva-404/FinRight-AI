@@ -3,10 +3,10 @@ import React from "react";
 
 export default function Splash() {
   return (
-    <div style={{ 
-      display: "flex", 
-      alignItems: "center", 
-      justifyContent: "center", 
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
       width: "100%",
       minHeight: "100vh"
     }}>
@@ -30,9 +30,9 @@ export default function Splash() {
           <span style={{ fontSize: 40, color: "#fff" }}>💰</span>
         </div>
 
-        <div className="splash-title" style={{ fontSize: 42, fontWeight: 800 }}>Finright</div>
-        <div style={{ 
-          marginTop: 12, 
+        <div className="splash-title" style={{ fontSize: 42, fontWeight: 800 }}>FinRight</div>
+        <div style={{
+          marginTop: 12,
           color: "#64748b",
           fontSize: 16,
           lineHeight: 1.5
@@ -42,19 +42,19 @@ export default function Splash() {
 
         {/* Animated Loading Bar */}
         <div style={{ marginTop: 32 }}>
-          <div style={{ 
-            width: "100%", 
-            height: 4, 
-            background: "#e2e8f0", 
-            borderRadius: 999, 
+          <div style={{
+            width: "100%",
+            height: 4,
+            background: "#e2e8f0",
+            borderRadius: 999,
             margin: "0 auto",
             overflow: "hidden"
           }}>
-            <div style={{ 
-              width: "60%", 
-              height: "100%", 
-              background: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)", 
-              borderRadius: 999, 
+            <div style={{
+              width: "60%",
+              height: "100%",
+              background: "linear-gradient(90deg, #667eea 0%, #764ba2 100%)",
+              borderRadius: 999,
               animation: "splashBar 1.8s ease-in-out infinite"
             }} />
           </div>

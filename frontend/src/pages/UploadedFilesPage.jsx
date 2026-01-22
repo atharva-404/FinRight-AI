@@ -1,7 +1,6 @@
 // src/pages/UploadedFilesPage.jsx
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../ThemeContext";
 import { useAuth } from "../AuthContext";
 import UserMenu from "../components/UserMenu";
 import { documentService } from "../services/documentService";
@@ -18,7 +17,6 @@ import "../styles/uploaded-files.css";
 
 export default function UploadedFilesPage() {
   const navigate = useNavigate();
-  const { isDark } = useTheme();
   const { isAuthenticated } = useAuth();
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,10 +82,27 @@ export default function UploadedFilesPage() {
     return `${Math.round(n / (1024 * 1024))} MB`;
   }
 
-  function deleteFile(id) {
-    // Currently only removes from UI; you can later call a DELETE API here
-    const updatedFiles = files.filter((f) => f.id !== id);
-    setFiles(updatedFiles);
+  async function deleteFile(id) {
+    // Show confirmation dialog
+    const confirmed = window.confirm('Are you sure you want to delete this file? This action cannot be undone.');
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      // Call API to delete file
+      await documentService.deleteDocument(id);
+
+      // Remove from UI on success
+      const updatedFiles = files.filter((f) => f.id !== id);
+      setFiles(updatedFiles);
+
+      // Show success message (you could add a toast notification here)
+      setError(null);
+    } catch (err) {
+      setError('Failed to delete file. Please try again.');
+    }
   }
 
   return (
@@ -127,7 +142,7 @@ export default function UploadedFilesPage() {
           )}
         </button>
 
-        <h3>Finright</h3>
+        <h3>FinRight</h3>
 
         <button
           className={`btn ${tab === "overview" ? "active" : ""}`}
@@ -143,6 +158,21 @@ export default function UploadedFilesPage() {
             <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
           </svg>
           <span>Dashboard Overview</span>
+        </button>
+
+        <button className="btn" onClick={() => navigate("/financial-health")}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          <span>FinRight Score</span>
+        </button>
+
+        <button className="btn" onClick={() => navigate("/wallet")}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+          <span>Wallet</span>
         </button>
 
         <button
@@ -193,15 +223,7 @@ export default function UploadedFilesPage() {
           <span>ChatBot</span>
         </button>
 
-        <div
-          style={{
-            marginTop: "auto",
-            fontSize: 12,
-            color: "var(--text-tertiary)",
-          }}
-        >
-          Sidebar (UI-only)
-        </div>
+
 
         <div>
           <button
@@ -233,6 +255,7 @@ export default function UploadedFilesPage() {
       <main
         ref={mainRef}
         className={`main-with-sidebar ${sidebarOpen ? "" : "sidebar-closed"}`}
+        style={{ overflowY: "auto", height: "100vh" }}
       >
         <div className="container">
           {/* Header with navigation */}
@@ -427,15 +450,15 @@ export default function UploadedFilesPage() {
                               <span className="detail-value">
                                 {f.created_at
                                   ? new Date(f.created_at).toLocaleDateString(
-                                      "en-US",
-                                      {
-                                        month: "short",
-                                        day: "numeric",
-                                        year: "numeric",
-                                      }
-                                    )
+                                    "en-US",
+                                    {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    }
+                                  )
                                   : f.addedAt
-                                  ? new Date(f.addedAt).toLocaleDateString(
+                                    ? new Date(f.addedAt).toLocaleDateString(
                                       "en-US",
                                       {
                                         month: "short",
@@ -443,7 +466,7 @@ export default function UploadedFilesPage() {
                                         year: "numeric",
                                       }
                                     )
-                                  : "-"}
+                                    : "-"}
                               </span>
                             </div>
                             <div className="detail-item">
@@ -483,7 +506,7 @@ export default function UploadedFilesPage() {
           </div>
 
           <footer className="page-footer">
-            © Finright — Expense Management Platform
+            © FinRight — Expense Management Platform
           </footer>
         </div>
       </main>
