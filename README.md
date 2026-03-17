@@ -50,6 +50,7 @@ Instead of just tracking expenses like traditional apps — FinRight AI analyzes
 
 ---
 
+
 ## 🏗 How It Works
 
 1. Upload CSV/PDF/Receipt image  
