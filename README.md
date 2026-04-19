@@ -9,6 +9,7 @@ Instead of just tracking expenses like traditional apps — FinRight AI analyzes
 
 ---
 
+
 ## 📌 Features
 
 - 🔍 **Smart Expense Summary**
