@@ -1,27 +1,31 @@
 """
 URL configuration for core project.
 
+Routes all application URLs including authentication, AI assistant, 
+transactions, savings goals, and gamification endpoints.
+
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.0/topics/http/urls/
+    
 Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+    - POST /auth/register - User registration
+    - POST /auth/login - User login
+    - GET /auth/me - Get current user profile (requires token)
+    - POST /auth/refresh - Refresh access token
+    - POST /api/ai/expense-upload/ - Upload expenses
+    - GET /api/documents/ - List documents
 """
-from django.urls import path,include
-from ai_assistant.views import analyze_spending
+from django.urls import path, include
 
 urlpatterns = [
-    path("api/ai/coach/", analyze_spending),
+    # Authentication endpoints (JWT-based)
+    path('auth/', include('users.urls')),
+    
+    # API endpoints
+    path('api/ai/', include('ai_assistant.urls')),
     path('api/users/', include('users.urls')),
     path('api/transactions/', include('transactions.urls')),
-    path("api/goals/", include("savings_goals.urls")),
+    path('api/goals/', include('savings_goals.urls')),
     path('api/gamification/', include('gamification.urls')),
 ]
 

@@ -1,0 +1,442 @@
+/* frontend/src/styles/global.css */
+@import './responsive.css';
+
+/* Basic reset */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --primary-color: #667eea;
+  --primary-dark: #764ba2;
+  --text-primary: #2d3748;
+  --text-secondary: #4a5568;
+  --text-tertiary: #718096;
+  --bg-primary: #fafbfc;
+  --bg-secondary: #f5f7fa;
+  --bg-tertiary: #edf2f7;
+  --border-color: #e2e8f0;
+  --shadow-sm: 0 2px 8px rgba(45, 55, 72, 0.06);
+  --shadow-md: 0 4px 16px rgba(45, 55, 72, 0.08);
+  --shadow-lg: 0 12px 32px rgba(45, 55, 72, 0.1);
+}
+
+html[data-theme="dark"] {
+  --text-primary: #e2e8f0;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #a0aec0;
+  --bg-primary: #1a202c;
+  --bg-secondary: #0f1419;
+  --bg-tertiary: #2d3748;
+  --border-color: #2d3748;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
+body,
+html,
+#root {
+  height: 100%;
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Ensure elements transition smoothly between themes */
+button,
+a,
+section,
+div[class*="section"],
+div[class*="card"] {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease !important;
+}
+
+/* Floating Theme Toggle */
+.floating-theme-toggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 998;
+  box-shadow: var(--shadow-lg);
+}
+
+.floating-theme-toggle:hover {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  transform: scale(1.1);
+}
+
+.floating-theme-toggle:active {
+  transform: scale(0.95);
+}
+
+.floating-theme-toggle:focus {
+  outline: none;
+}
+
+/* Layout with sidebar (sidebar sits below top nav) */
+:root {
+  --sidebar-width: 280px;
+  --sidebar-closed-width: 80px;
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 50;
+  border-right: 1px solid var(--border-color);
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1), padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-y: auto;
+  overflow-x: hidden;
+  align-items: flex-start;
+  padding-bottom: 28px;
+  /* ensure some breathing room at bottom */
+}
+
+.sidebar.closed {
+  width: var(--sidebar-closed-width);
+  padding: 12px 8px;
+  align-items: center;
+}
+
+.sidebar.closed h3,
+.sidebar.closed>div:not(.sidebar-toggle-btn),
+.sidebar.closed .btn span:last-child {
+  display: none;
+}
+
+.sidebar.closed .btn {
+  width: 100%;
+  height: 64px;
+  /* taller buttons when collapsed to avoid overlapping */
+  padding: 0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 12px;
+}
+
+.sidebar .btn svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.sidebar h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: opacity 0.3s ease;
+}
+
+.sidebar .btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 10px;
+  /* separate items vertically to avoid overlap */
+}
+
+.sidebar .btn span:last-child {
+  transition: opacity 0.3s ease;
+}
+
+.sidebar .btn svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  stroke: currentColor;
+  fill: none;
+}
+
+.sidebar .btn:hover {
+  background: var(--bg-tertiary);
+}
+
+.sidebar .btn.active {
+  background: var(--bg-tertiary);
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+.sidebar-toggle-btn {
+  position: absolute;
+  top: 20px;
+  left: 200px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  z-index: 60;
+}
+
+.sidebar.closed .sidebar-toggle-btn {
+  left: 8px;
+}
+
+.sidebar-toggle-btn:hover {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* Main content area when sidebar present */
+.main-with-sidebar {
+  margin-left: var(--sidebar-width);
+  padding: 28px;
+  background: var(--bg-secondary);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: margin-left 0.3s ease;
+}
+
+.main-with-sidebar.sidebar-closed {
+  margin-left: var(--sidebar-closed-width);
+}
+
+/* Tweak sidebar spacing to avoid icon overlap when collapsed */
+.sidebar {
+  row-gap: 12px;
+  /* ensure consistent vertical spacing */
+}
+
+.sidebar .btn {
+  line-height: 1;
+}
+
+.sidebar.closed .btn {
+  justify-content: center;
+  /* center icons when collapsed */
+}
+
+/* Generic container */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Sections & cards */
+.section {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.hero-card {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  background: var(--bg-primary);
+  padding: 28px;
+  border-radius: 14px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* Upload look */
+.upload-card {
+  border: 2px dashed var(--border-color);
+  padding: 18px;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+}
+
+/* Files list table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Footer */
+.page-footer {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 20px 0;
+}
+
+/* Back Button Styling */
+.page-back-button {
+  margin-bottom: 0;
+}
+
+.back-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.back-link-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateX(-2px);
+}
+
+.back-link-btn:active {
+  transform: translateX(-2px) scale(0.98);
+}
+
+.back-link-btn:focus {
+  outline: none;
+}
+
+/* Login Button Styling */
+.login-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+}
+
+.login-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.login-button:focus {
+  outline: none;
+}
+
+.login-button svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+}
+
+/* Back-to-top pulse animation */
+.back-to-top-clicked main {
+  transform: translateY(-6px);
+  transition: transform 220ms ease;
+}
+
+/* Make Overview long by default helpers (spacing for sections) */
+.long-section {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  border-radius: 12px;
+  border: 1px dashed var(--border-color);
+  background: var(--bg-primary);
+  box-shadow: var(--shadow-md);
+  padding: 32px;
+  margin-bottom: 20px;
+}
+
+/* Splash (small additional tweaks) */
+.splash-wrap {
+  min-height: var(--top-nav-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splash-card {
+  background: var(--bg-primary);
+  padding: 36px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+  width: 520px;
+  border: 1px solid var(--border-color);
+}
+
+.splash-title {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text-primary);
+}

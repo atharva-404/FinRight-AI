@@ -1,2 +1,9 @@
 /backend/venv
 *.pyc
+.env
+/frontend/node_modules
+*.md
+/frontend/node_modules
+*.pyc
+*.pyc
+*.pyc
